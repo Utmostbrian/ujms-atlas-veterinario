@@ -677,52 +677,55 @@ function safeJSON(raw){
   }
 }
 /* ═══════════════════ CLAUDE API ═══════════════════ */
-/* ── PROXY URL: reemplaza con la URL de tu proyecto en Vercel ──────────
-   Ejemplo: 'https://ujms-atlas.vercel.app/api/claude'
-   ──────────────────────────────────────────────────────────────────── */
-var PROXY_URL = 'https://TU-PROYECTO.vercel.app/api/claude';
+/* ═══════════════════ API CLAUDE ═══════════════════
+   Pega aqui tu API Key de console.anthropic.com
+   Ejemplo: 'sk-ant-api03-XXXXXXXXXX...'
+════════════════════════════════════════════════════ */
+var CLAUDE_KEY = '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';
+
+async function callAPI(payload) {
+  if (!CLAUDE_KEY || CLAUDE_KEY === 'PEGA-TU-API-KEY-AQUI') {
+    throw new Error('Falta la API Key. Edita el archivo index.html y pega tu key de console.anthropic.com');
+  }
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': CLAUDE_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(payload)
+  });
+  var data = await resp.json();
+  if (data.error) {
+    var msg = data.error.message || 'Error desconocido';
+    if (data.error.type === 'authentication_error') msg = 'API Key invalida. Verifica en console.anthropic.com';
+    if (data.error.type === 'overloaded_error') msg = 'Servidor ocupado. Intenta en unos segundos.';
+    if (data.error.type === 'rate_limit_error') msg = 'Demasiadas consultas. Espera un momento.';
+    throw new Error(msg);
+  }
+  return (data.content && data.content[0] && data.content[0].text) || '';
+}
 
 async function claude(prompt, tokens) {
-  var r = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: tokens || 1200,
-      messages: [{ role: 'user', content: prompt }]
-    })
+  return callAPI({
+    model: 'claude-sonnet-4-6',
+    max_tokens: tokens || 1200,
+    messages: [{ role: 'user', content: prompt }]
   });
-  if (!r.ok) throw new Error('Error HTTP ' + r.status);
-  var d = await r.json();
-  if (d.error) {
-    if (d.error.type === 'authentication_error') throw new Error('API Key invalida en el servidor.');
-    if (d.error.type === 'overloaded_error') throw new Error('Servidor ocupado. Intenta de nuevo.');
-    throw new Error(d.error.message || 'Error de API');
-  }
-  return (d.content && d.content[0] && d.content[0].text) || '';
 }
 
 async function claudeChat(msgs, system, tokens) {
-  var body = {
+  var payload = {
     model: 'claude-sonnet-4-6',
     max_tokens: tokens || 800,
     messages: msgs
   };
-  if (system) body.system = system;
-  var r = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!r.ok) throw new Error('Error HTTP ' + r.status);
-  var d = await r.json();
-  if (d.error) {
-    if (d.error.type === 'authentication_error') throw new Error('API Key invalida en el servidor.');
-    if (d.error.type === 'overloaded_error') throw new Error('Servidor ocupado. Intenta de nuevo.');
-    throw new Error(d.error.message || 'Error de API');
-  }
-  return (d.content && d.content[0] && d.content[0].text) || '';
+  if (system) payload.system = system;
+  return callAPI(payload);
 }
+
 
 /* ═══════════════════ TABS ═══════════════════ */
 function goTab(id){
