@@ -9,7 +9,12 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   try {
-    const b = req.body;
+    let b = req.body;
+    if (typeof b === 'string') b = JSON.parse(b);
+    if (!b || !b.messages) {
+      return res.status(400).json({ error: { message: 'Missing messages' } });
+    }
+
     const payload = {
       model: b.model || 'claude-sonnet-4-6',
       max_tokens: b.max_tokens || 1200,
