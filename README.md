@@ -64,15 +64,6 @@ ujms-atlas-veterinario/
 
 ---
 
-## 🌐 Despliegue en GitHub Pages
-
-```bash
-# 1. Crea un repositorio público en github.com
-# 2. Sube el archivo index.html
-# 3. Ve a Settings → Pages → Branch: main → Save
-# Tu web estará disponible en:
-# https://TU_USUARIO.github.io/ujms-atlas-veterinario/
-```
 
 ---
 
@@ -83,12 +74,6 @@ Siempre consultar el vademécum actualizado y aplicar criterio clínico bajo sup
 
 ---
 
-## 🔧 Tecnologías
-
-- HTML5 + CSS3 + JavaScript vanilla
-- [Claude API](https://anthropic.com) — Anthropic (claude-sonnet-4-6)
-- Google Fonts — Playfair Display, Source Sans 3, EB Garamond
-- Sin frameworks — funciona offline para el catálogo base
 
 ---
 
