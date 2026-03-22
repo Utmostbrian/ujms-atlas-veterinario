@@ -684,7 +684,7 @@ function safeJSON(raw){
 // API key is stored securely in Vercel environment variables (ANTHROPIC_API_KEY)
 
 async function callAPI(payload) {
-  var resp = await fetch('/api/claude', {
+  var resp = await fetch('https://ujms-proxy.ybeizagao.workers.dev', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
