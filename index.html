@@ -681,28 +681,28 @@ function safeJSON(raw){
    Pega aqui tu API Key de console.anthropic.com
    Ejemplo: 'sk-ant-api03-XXXXXXXXXX...'
 ════════════════════════════════════════════════════ */
-var CLAUDE_KEY = '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';
+// API key is stored securely in Vercel environment variables (ANTHROPIC_API_KEY)
 
 async function callAPI(payload) {
-  if (!CLAUDE_KEY || CLAUDE_KEY === 'PEGA-TU-API-KEY-AQUI') {
-    throw new Error('Falta la API Key. Edita el archivo index.html y pega tu key de console.anthropic.com');
-  }
-  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+  // Calls /api/claude on Vercel (server-side proxy - avoids CORS)
+  var resp = await fetch('/api/claude', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': CLAUDE_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+  if (!resp.ok) {
+    var errText = '';
+    try { var e = await resp.json(); errText = (e.error && e.error.message) || resp.status; } catch(_) { errText = resp.status; }
+    if (resp.status === 401) throw new Error('API Key invalida. Verifica la variable ANTHROPIC_API_KEY en Vercel.');
+    if (resp.status === 429) throw new Error('Demasiadas consultas. Espera un momento.');
+    if (resp.status === 529) throw new Error('Servidor de IA ocupado. Intenta en unos segundos.');
+    throw new Error('Error del servidor: ' + errText);
+  }
   var data = await resp.json();
   if (data.error) {
     var msg = data.error.message || 'Error desconocido';
-    if (data.error.type === 'authentication_error') msg = 'API Key invalida. Verifica en console.anthropic.com';
-    if (data.error.type === 'overloaded_error') msg = 'Servidor ocupado. Intenta en unos segundos.';
-    if (data.error.type === 'rate_limit_error') msg = 'Demasiadas consultas. Espera un momento.';
+    if (data.error.type === 'authentication_error') msg = 'API Key invalida en el servidor.';
+    if (data.error.type === 'overloaded_error') msg = 'Servidor ocupado. Intenta de nuevo.';
     throw new Error(msg);
   }
   return (data.content && data.content[0] && data.content[0].text) || '';
