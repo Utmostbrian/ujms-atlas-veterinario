@@ -677,36 +677,64 @@ function safeJSON(raw){
   }
 }
 /* ═══════════════════ CLAUDE API ═══════════════════ */
+/* ── API KEY: pega tu key de console.anthropic.com ── */
+var API_KEY = 'PEGA-TU-API-KEY-AQUI';
+var API_URL = 'https://api.anthropic.com/v1/messages';
+
+function getHeaders(){
+  return {
+    'Content-Type':'application/json',
+    'x-api-key': API_KEY,
+    'anthropic-version':'2023-06-01',
+    'anthropic-dangerous-direct-browser-access':'true'
+  };
+}
+
 async function claude(prompt,tokens){
-  var r=await fetch('https://api.anthropic.com/v1/messages',{
+  if(API_KEY==='PEGA-TU-API-KEY-AQUI'){
+    throw new Error('Configura tu API Key en el archivo index.html');
+  }
+  var r=await fetch(API_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:getHeaders(),
     body:JSON.stringify({
       model:'claude-sonnet-4-6',
       max_tokens:tokens||1200,
       messages:[{role:'user',content:prompt}]
     })
   });
-  if(!r.ok)throw new Error('HTTP '+r.status);
   var d=await r.json();
-  if(d.error)throw new Error(d.error.message||'API error');
+  if(d.error){
+    if(d.error.type==='authentication_error')throw new Error('API Key inválida. Verifica tu key en console.anthropic.com');
+    if(d.error.type==='overloaded_error')throw new Error('Servidor ocupado. Intenta en unos segundos.');
+    throw new Error(d.error.message||'Error de API');
+  }
+  if(!r.ok)throw new Error('Error HTTP '+r.status);
   return(d.content&&d.content[0]&&d.content[0].text)||'';
 }
 
 async function claudeChat(msgs,system,tokens){
-  var r=await fetch('https://api.anthropic.com/v1/messages',{
+  if(API_KEY==='PEGA-TU-API-KEY-AQUI'){
+    throw new Error('Configura tu API Key en el archivo index.html');
+  }
+  var body={
+    model:'claude-sonnet-4-6',
+    max_tokens:tokens||800,
+    messages:msgs
+  };
+  if(system)body.system=system;
+  var r=await fetch(API_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-6',
-      max_tokens:tokens||800,
-      system:system,
-      messages:msgs
-    })
+    headers:getHeaders(),
+    body:JSON.stringify(body)
   });
-  if(!r.ok)throw new Error('HTTP '+r.status);
   var d=await r.json();
-  if(d.error)throw new Error(d.error.message||'API error');
+  if(d.error){
+    if(d.error.type==='authentication_error')throw new Error('API Key inválida.');
+    if(d.error.type==='overloaded_error')throw new Error('Servidor ocupado. Intenta en unos segundos.');
+    throw new Error(d.error.message||'Error de API');
+  }
+  if(!r.ok)throw new Error('Error HTTP '+r.status);
   return(d.content&&d.content[0]&&d.content[0].text)||'';
 }
 
