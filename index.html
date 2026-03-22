@@ -684,21 +684,15 @@ function safeJSON(raw){
 // API key is stored securely in Vercel environment variables (ANTHROPIC_API_KEY)
 
 async function callAPI(payload) {
-  var KEY = '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';
-  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+  var resp = await fetch('/proxy', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
   if (!resp.ok) {
     var errData = {};
     try { errData = await resp.json(); } catch(_) {}
-    var msg = (errData.error && errData.error.message) || ('Error HTTP ' + resp.status);
+    var msg = (errData.error && errData.error.message) || ('Error ' + resp.status);
     throw new Error(msg);
   }
   var data = await resp.json();
