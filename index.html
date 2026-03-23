@@ -692,7 +692,7 @@ async function callAPI(payload) {
 async function claude(prompt, tokens) {
   return callAPI({
     model: 'claude-sonnet-4-6',
-    max_tokens: tokens || 1200,
+    max_tokens: tokens || 2000,
     messages: [{ role: 'user', content: prompt }]
   });
 }
@@ -805,15 +805,14 @@ async function searchDrug(){
   gid('sb').disabled=true;gid('sb').textContent='Consultando...';
   showLoading();addRecent(q);
   var prompt=[
-    'Eres farmacólogo veterinario experto. El usuario busca el fármaco: '+q+'.',
-    'Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin bloques markdown.',
-    'Estructura requerida:',
-    '{"encontrado":true,"nombre":"nombre del farmaco","nombreCientifico":"nombre cientifico","categoria":"categoria terapeutica","viaAdministracion":"vias","especiesIndicadas":"especies","descripcion":"descripcion 2-3 oraciones","historia":"historia y año descubrimiento","mecanismoAccion":"mecanismo detallado","indicaciones":["ind1","ind2","ind3"],"contraindicaciones":["cont1","cont2"],"efectosAdversos":["ef1","ef2"],"dosis":[{"especie":"especie","dosis":"dosis mg/kg","via":"via","frecuencia":"frecuencia","duracion":"duracion"}],"interacciones":"interacciones principales","periodoSupresion":"periodo supresion","avisoClinico":"aviso importante"}',
-    'Si el término NO es un fármaco veterinario conocido responde: {"encontrado":false,"mensaje":"explicación"}',
-    'SOLO el JSON, nada más.'
+    'Eres farmacólogo veterinario. Busca: '+q+'.',
+    'Responde SOLO con JSON compacto (sin espacios extra, sin markdown):',
+    '{"encontrado":true,"nombre":"","nombreCientifico":"","categoria":"","viaAdministracion":"","especiesIndicadas":"","descripcion":"max 2 oraciones","historia":"max 1 oracion","mecanismoAccion":"max 2 oraciones","indicaciones":["","",""],"contraindicaciones":["",""],"efectosAdversos":["",""],"dosis":[{"especie":"","dosis":"","via":"","frecuencia":"","duracion":""}],"interacciones":"max 1 oracion","periodoSupresion":"","avisoClinico":""}',
+    'Si no es fármaco vet: {"encontrado":false,"mensaje":""}',
+    'SOLO JSON.'
   ].join(' ');
   try{
-    var raw=await claude(prompt,2000);
+    var raw=await claude(prompt,4000);
     if(!raw||raw.trim()===''){
       renderAI({encontrado:false,mensaje:'Respuesta vacía del servidor. Intenta de nuevo.'},q);
       return;
