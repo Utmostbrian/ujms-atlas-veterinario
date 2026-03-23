@@ -644,8 +644,9 @@ function now(){return new Date().toLocaleTimeString('es',{hour:'2-digit',minute:
 
 function safeJSON(raw){
   if(!raw||typeof raw!=='string')return null;
-  // Strip markdown fences
-  var s=raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+  // Strip markdown fences - remove all backtick blocks
+  var s=raw.trim();
+  s=s.replace(/```json/g,'').replace(/```/g,'').trim();
   // Try 1: direct JSON.parse (fastest, handles all cases)
   try{return JSON.parse(s)}catch(e){}
   // Try 2: extract from first { to last }
