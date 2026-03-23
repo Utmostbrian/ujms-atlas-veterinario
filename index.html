@@ -816,16 +816,20 @@ async function searchDrug(){
   loadingAtlas=true;
   gid('sb').disabled=true;gid('sb').textContent='Consultando...';
   showLoading();addRecent(q);
-  var prompt='Eres un experto en farmacología veterinaria. El usuario busca información sobre el fármaco: "'+q+'".\n\nResponde EXCLUSIVAMENTE con un objeto JSON válido (sin texto antes ni después, sin bloques markdown). Usa esta estructura EXACTA:\n{\n  "encontrado": true,\n  "nombre": "Nombre comercial del fármaco",\n  "nombreCientifico": "Nombre DCI o científico",\n  "categoria": "Categoría terapéutica veterinaria",\n  "viaAdministracion": "Vías de administración separadas por coma",\n  "especiesIndicadas": "Especies donde se usa",\n  "descripcion": "Descripción general en 2-3 oraciones",\n  "historia": "Historia: año descubrimiento, laboratorio desarrollador, hitos",\n  "mecanismoAccion": "Mecanismo de acción detallado",\n  "indicaciones": ["indicación 1", "indicación 2", "indicación 3", "indicación 4"],\n  "contraindicaciones": ["contraindicación 1", "contraindicación 2", "contraindicación 3"],\n  "efectosAdversos": ["efecto 1", "efecto 2", "efecto 3"],\n  "dosis": [\n    {"especie": "nombre", "dosis": "x mg/kg", "via": "vía", "frecuencia": "cada x h", "duracion": "x días"},\n    {"especie": "nombre2", "dosis": "x mg/kg", "via": "vía", "frecuencia": "cada x h", "duracion": "x días"}\n  ],\n  "interacciones": "Principales interacciones farmacológicas",\n  "periodoSupresion": "Período de supresión en animales de abasto o cadena vacía si no aplica",\n  "avisoClinico": "Advertencia de seguridad más importante"\n}\n\nSi el término buscado NO es un fármaco veterinario conocido, responde:\n{"encontrado": false, "mensaje": "Explicación breve de por qué no se encontró"}\n\nIMPORTANTE: Solo el JSON, absolutamente nada más.';
+  var prompt='Eres farmacólogo veterinario experto. Busca: "'+q+'". Responde SOLO con JSON, sin texto adicional, sin markdown:\n{"encontrado":true,"nombre":"","nombreCientifico":"","categoria":"","viaAdministracion":"","especiesIndicadas":"","descripcion":"","historia":"","mecanismoAccion":"","indicaciones":[""],"contraindicaciones":[""],"efectosAdversos":[""],"dosis":[{"especie":"","dosis":"","via":"","frecuencia":"","duracion":""}],"interacciones":"","periodoSupresion":"","avisoClinico":""}\nSi no es fármaco veterinario: {"encontrado":false,"mensaje":"explicación"}\nSolo JSON.';
   try{
-    var raw=await claude(prompt,1600);
+    var raw=await claude(prompt,2000);
     var parsed=safeJSON(raw);
     if(!parsed){
-      // Try to extract JSON more aggressively
       var m=raw.match(/\{[\s\S]*"encontrado"[\s\S]*\}/);
       parsed=m?safeJSON(m[0]):null;
     }
-    if(!parsed){parsed={encontrado:false,mensaje:'No se pudo procesar la respuesta. Verifica el nombre del fármaco e intenta de nuevo.'}}
+    if(!parsed){
+      // Last resort: try to find any JSON object
+      var m2=raw.match(/\{[\s\S]*\}/);
+      parsed=m2?safeJSON(m2[0]):null;
+    }
+    if(!parsed){parsed={encontrado:false,mensaje:'No se pudo procesar la respuesta. Intenta de nuevo.'}}
     renderAI(parsed,q);
   }catch(err){
     gid('airesult').innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic">&#10005;</button><div class="ainame">Error de conexión</div></div><div class="aibody"><div class="wbox"><span>&#9888;</span><span>No se pudo conectar con la IA. Verifica tu conexión e intenta de nuevo.</span></div></div></div>';
