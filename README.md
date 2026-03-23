@@ -1,4 +1,4 @@
-# 🐾 Atlas Farmacológico Veterinario
+# Atlas Farmacológico Veterinario
 ### Universidad Autónoma Juan Misael Saracho — Sede Villa Montes
 **Carrera de Medicina Veterinaria y Zootecnia**
 
