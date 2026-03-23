@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atlas Farmacológico Veterinario — UJMS Villa Montes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🐾</text></svg>">
+<meta name="description" content="Atlas Farmacológico Veterinario UJMS Villa Montes">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Sans+3:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root{--blue:#003087;--blue-mid:#1a4aad;--red:#CC0000;--red-dark:#990000;--white:#fff;--cream:#F8F5F0;--gl:#EEF0F4;--gray:#9AA0AF;--dark:#111827;--text:#1F2937;--soft:#4B5563;--border:#D1D5DB;--sh:0 4px 24px rgba(0,48,135,.10);--shlg:0 12px 40px rgba(0,48,135,.18);--r:12px;--rs:8px}
@@ -81,6 +83,9 @@ header{background:var(--blue);color:#fff;position:sticky;top:0;z-index:200;box-s
 .sic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:.88rem;pointer-events:none}
 #sb{padding:11px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;transition:.2s;white-space:nowrap}
 #sb:hover{background:var(--blue-mid)}
+#btnEnfSearch{padding:11px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap}
+#btnEnfSearch:hover{background:var(--blue-mid)}
+#btnEnfSearch:disabled{background:var(--gray)}
 #sb:disabled{background:var(--gray)}
 .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
 .chip{padding:4px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:.75rem;font-weight:600;color:var(--soft);transition:.2s}
@@ -494,6 +499,14 @@ footer{background:var(--dark);color:rgba(255,255,255,.6);margin-top:48px}
 <!-- ENFERMEDADES -->
 <div class="tc" id="tc-enf">
   <div class="shdr"><h2 class="stitle">Protocolos por Enfermedad</h2><span class="scnt" id="enfcnt">12 enfermedades</span></div>
+  <div class="sbar" style="margin-bottom:18px">
+    <div class="slbl2">Buscar cualquier enfermedad veterinaria</div>
+    <div class="srow">
+      <div class="swrap"><span class="sic">&#128269;</span><input type="text" id="enfSearch" placeholder="Ej: mastitis, parvovirus, brucelosis, moquillo..."></div>
+      <button id="btnEnfSearch">Buscar con IA</button>
+    </div>
+    <div style="margin-top:9px;font-size:.8rem;color:var(--soft)">O selecciona una de las enfermedades frecuentes del catálogo:</div>
+  </div>
   <div class="egrid" id="egrid"></div>
   <div id="edet" style="margin-top:18px"></div>
 </div>
@@ -678,7 +691,6 @@ async function callAPI(payload) {
   });
   var data;
   try { data = await resp.json(); } catch(e) { throw new Error('Respuesta no válida del servidor'); }
-  console.log('API response:', JSON.stringify(data).substring(0, 200));
   if (data.error) {
     throw new Error(data.error.message || 'Error de API: ' + JSON.stringify(data.error));
   }
@@ -850,7 +862,7 @@ async function calcDosis(){
   var btn=gid('bcalc');btn.disabled=true;btn.textContent='Calculando...';
   var prompt='Eres un farmacólogo veterinario experto. Calcula la dosis:\nFármaco: '+drug+'\nEspecie: '+esp+'\nPeso: '+peso+' kg\nConcentración: '+conc+' '+unit+'\nVía: '+via+'\n\nResponde SOLO con este JSON (sin texto extra):\n{"dosis_mg_kg":"dosis recomendada en mg/kg","dosis_total_mg":"mg totales = dosis_mg_kg x peso","volumen_ml":"mL a administrar = dosis_total_mg dividido concentración convertida a mg/mL","frecuencia":"cada cuántas horas","duracion":"duración típica del tratamiento","observacion":"nota clínica importante","advertencia":"advertencia de seguridad si existe o cadena vacía"}';
   try{
-    var raw=await claude(prompt,600);
+    var raw=await claude(prompt,1500);
     var d=safeJSON(raw);
     if(d&&(d.dosis_mg_kg||d.volumen_ml)){
       var html='<div class="crtitle">'+esc(drug)+' — '+esc(esp)+' '+peso+' kg</div>';
@@ -903,7 +915,7 @@ async function checkInter(){
   var btn=gid('bcheck');btn.disabled=true;btn.textContent='Analizando...';
   var prompt='Farmacólogo veterinario experto. Analiza interacciones entre: '+idrugs.join(', ')+'\n\nResponde SOLO con este JSON:\n{"pares":[{"farmaco1":"","farmaco2":"","tipo":"Peligrosa|Precaución|Sinérgica|Sin interacción","descripcion":"","recomendacion":""}],"conclusion":"resumen general","nivel_riesgo":"Alto|Moderado|Bajo|Sin riesgo"}\nSolo JSON, nada más.';
   try{
-    var raw=await claude(prompt,1000);
+    var raw=await claude(prompt,1500);
     var d=safeJSON(raw);
     if(d&&d.pares){
       var cm={'Alto':'#CC0000','Moderado':'#F97316','Bajo':'#ca8a04','Sin riesgo':'#166534'};
@@ -926,7 +938,7 @@ async function compFarmacos(){
   gid('compres').innerHTML='<div class="ld"><div class="sp"></div><p>Comparando con IA...</p></div>';
   var prompt='Farmacólogo veterinario experto. Compara "'+d1+'" vs "'+d2+'" en medicina veterinaria.\nResponde SOLO con este JSON:\n{"f1":{"nombre":"","categoria":"","mecanismo":"","espectro":"","especie":"","dosisTipica":"","seguridad":"","gestacion":"","supresion":"","costo":"Bajo|Medio|Alto"},"f2":{"nombre":"","categoria":"","mecanismo":"","espectro":"","especie":"","dosisTipica":"","seguridad":"","gestacion":"","supresion":"","costo":"Bajo|Medio|Alto"},"conclusion":"cuándo preferir uno u otro"}\nSolo JSON, nada más.';
   try{
-    var raw=await claude(prompt,1200);
+    var raw=await claude(prompt,2500);
     var d=safeJSON(raw);
     if(d&&d.f1&&d.f2){
       var rows=[['Categoría','categoria'],['Mecanismo','mecanismo'],['Espectro / Indicaciones','espectro'],['Especies','especie'],['Dosis típica','dosisTipica'],['Seguridad','seguridad'],['Gestación','gestacion'],['Período supresión','supresion'],['Costo relativo','costo']];
@@ -938,20 +950,63 @@ async function compFarmacos(){
 }
 
 /* ═══════════════════ ENFERMEDADES ═══════════════════ */
-function renderEnfs(){
+function renderEnfs(filter){
   var g=gid('egrid');g.innerHTML='';
-  ENFS.forEach(function(e){
+  var list=ENFS;
+  if(filter){
+    var q=filter.toLowerCase();
+    list=ENFS.filter(function(e){return e.n.toLowerCase().includes(q)||e.e.toLowerCase().includes(q)||e.d.toLowerCase().includes(q)});
+  }
+  gid('enfcnt').textContent=list.length+' enfermedad'+(list.length!==1?'es':'');
+  list.forEach(function(e){
     var c=document.createElement('div');c.className='ecard';c.dataset.eid=e.id;
     c.innerHTML='<div class="ech" style="background:'+e.c+'">'+esc(e.n)+'</div><div class="ecb">'+esc(e.d)+'</div><div class="ecf"><span>'+esc(e.e)+'</span><span>'+e.fs.length+' fármacos</span></div>';
     g.appendChild(c);
   });
+  if(!list.length){g.innerHTML='<div class="empty"><h3>Sin coincidencias en catálogo</h3><p>Usa el buscador con IA para buscar cualquier enfermedad</p></div>'}
+}
+
+async function searchEnf(){
+  var q=(gid('enfSearch').value||'').trim();
+  if(!q)return;
+  var btn=gid('btnEnfSearch');
+  btn.disabled=true;btn.textContent='Buscando...';
+  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo para "'+esc(q)+'"...</p></div>';
+  var fakeEnf={id:0,n:q,e:'Múltiples especies',c:'#003087'};
+  var prompt=[
+    'Veterinario clínico experto. Dame el protocolo de tratamiento para la enfermedad "'+q+'" en animales.',
+    'Responde SOLO con JSON compacto sin markdown:',
+    '{"diagnostico":"desc clinica","etiopatogenia":"causa","signosClinicos":["s1","s2","s3"],"protocolo":[{"fase":"Fase 1","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":"obj"}],"medidasSoporte":["m1","m2"],"pronostico":"pronostico","prevencion":"prevencion"}',
+    'Solo JSON.'
+  ].join(' ');
+  try{
+    var raw=await claude(prompt,2500);
+    var d=safeJSON(raw);
+    if(d&&d.protocolo){
+      var fasesH=(d.protocolo||[]).map(function(f){
+        var fH=(f.farmacos||[]).map(function(x){return'<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>'}).join('');
+        return'<div style="margin-bottom:14px"><div style="font-weight:700;color:var(--blue);font-size:.93rem;margin-bottom:6px">'+esc(f.fase||'')+'</div><div style="font-size:.82rem;color:var(--soft);margin-bottom:7px"><strong>Objetivo:</strong> '+esc(f.objetivo||'')+'</div><table class="dtbl"><thead><tr><th>Fármaco</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+fH+'</tbody></table></div>';
+      }).join('');
+      var sc=(d.signosClinicos||[]).map(function(x){return'<li>'+esc(x)+'</li>'}).join('');
+      var ms=(d.medidasSoporte||[]).map(function(x){return'<li>'+esc(x)+'</li>'}).join('');
+      gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,#003087,#001f5c)"><button class="aiclose" id="edetclose2">&#10005;</button><div class="ainame">'+esc(q)+'</div><div class="ailat">Protocolo generado por IA</div><div class="aitags"><span class="aitag ia">IA</span></div></div><div class="aibody"><div class="a2col"><div class="aisec"><h3>Diagnóstico y Etiología</h3><p>'+esc(d.diagnostico||'')+'</p><br><p>'+esc(d.etiopatogenia||'')+'</p></div><div class="aisec b"><h3>Signos Clínicos</h3><ul>'+sc+'</ul></div></div><div class="aisec"><h3>Protocolo de Tratamiento</h3>'+fasesH+'</div><div class="a2col"><div class="aisec g"><h3>Medidas de Soporte</h3><ul>'+ms+'</ul></div><div class="aisec o"><h3>Pronóstico y Prevención</h3><p><strong>Pronóstico:</strong> '+esc(d.pronostico||'')+'</p><br><p><strong>Prevención:</strong> '+esc(d.prevencion||'')+'</p></div></div></div></div>';
+      gid('edet').scrollIntoView({behavior:'smooth'});
+      var ec=gid('edetclose2');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
+    }else{gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudo generar protocolo. Intenta con otro nombre.</span></div>'}
+  }catch(e2){gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error: '+esc(e2.message||'conexión')+'</span></div>'}
+  finally{btn.disabled=false;btn.textContent='Buscar con IA'}
 }
 async function showEnf(id){
   var e=ENFS.find(function(x){return x.id===id});if(!e)return;
   gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo...</p></div>';
-  var prompt='Veterinario clínico experto. Protocolo de tratamiento para "'+e.n+'" en '+e.e+'.\nResponde SOLO con este JSON:\n{"diagnostico":"descripción clínica breve","etiopatogenia":"causa y mecanismo","signosClinicos":["signo1","signo2","signo3"],"protocolo":[{"fase":"Fase 1 — nombre","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":"objetivo de esta fase"}],"medidasSoporte":["medida1","medida2"],"pronostico":"pronóstico clínico","prevencion":"medidas preventivas"}\nSolo JSON, nada más.';
+  var prompt=[
+    'Veterinario clínico experto. Dame el protocolo de tratamiento para "'+e.n+'" en '+e.e+'.',
+    'Responde SOLO con JSON compacto sin markdown:',
+    '{"diagnostico":"desc clinica","etiopatogenia":"causa","signosClinicos":["s1","s2","s3"],"protocolo":[{"fase":"Fase 1","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":"obj"}],"medidasSoporte":["m1","m2"],"pronostico":"pronostico","prevencion":"prevencion"}',
+    'Solo JSON.'
+  ].join(' ');
   try{
-    var raw=await claude(prompt,1200);
+    var raw=await claude(prompt,2500);
     var d=safeJSON(raw);
     if(d&&d.protocolo){
       var fasesH=(d.protocolo||[]).map(function(f){
@@ -1140,6 +1195,9 @@ document.addEventListener('DOMContentLoaded',function(){
   // ENFERMEDADES
   renderEnfs();
   gid('egrid').addEventListener('click',function(e){var c=e.target.closest('.ecard');if(c)showEnf(parseInt(c.dataset.eid))});
+  gid('btnEnfSearch').addEventListener('click',searchEnf);
+  gid('enfSearch').addEventListener('keydown',function(e){if(e.key==='Enter')searchEnf()});
+  gid('enfSearch').addEventListener('input',function(){renderEnfs(this.value.trim())});
 
   // CHAT
   gid('chsend').addEventListener('click',sendChat);
