@@ -1,5 +1,3 @@
-Aquí tienes el contenido ajustado según lo que pediste, limpio y listo para tu README o documento:
-
 Atlas Farmacológico Veterinario
 Universidad Autónoma Juan Misael Saracho — Sede Villa Montes
 Carrera de Medicina Veterinaria y Zootecnia
