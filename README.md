@@ -1,95 +1,72 @@
-# Atlas Farmacológico Veterinario
-### Universidad Autónoma Juan Misael Saracho — Sede Villa Montes
-**Carrera de Medicina Veterinaria y Zootecnia**
+Aquí tienes el contenido ajustado según lo que pediste, limpio y listo para tu README o documento:
 
-> *Sapientia et Iustitia Immortales Sunt*
+Atlas Farmacológico Veterinario
+Universidad Autónoma Juan Misael Saracho — Sede Villa Montes
+Carrera de Medicina Veterinaria y Zootecnia
 
----
+Sapientia et Iustitia Immortales Sunt
 
-## ¿Qué es esto?
+¿Qué es esto?
 
-Recurso académico digital para estudiantes y profesionales de la Carrera de Veterinaria de la UJMS Sede Villa Montes. Combina un catálogo farmacológico base con **Inteligencia Artificial** para consultar información completa de cualquier fármaco veterinario en tiempo real.
+Recurso académico digital orientado a estudiantes y profesionales de la Carrera de Medicina Veterinaria y Zootecnia. El sistema combina un catálogo farmacológico base con inteligencia artificial para consultar información completa de fármacos veterinarios en tiempo real.
 
----
+Uso de la inteligencia artificial
 
-## 🚀 Cómo usar
+El sistema incorpora módulos basados en inteligencia artificial que permiten realizar consultas dinámicas y obtener información contextualizada en tiempo real.
 
-1. Descarga el archivo `index.html`
-2. Ábrelo en cualquier navegador (Chrome, Firefox, Edge, Safari)
-3. ¡Listo! No requiere instalación ni servidor
+Para utilizar la IA dentro de la plataforma:
 
----
+Ingresar el nombre de un fármaco, enfermedad o consulta clínica en los módulos correspondientes
+Utilizar el Atlas con IA para obtener información farmacológica completa
+Realizar consultas libres mediante el Chat IA
+Generar contenido académico como resúmenes o evaluaciones mediante los módulos disponibles
 
-## 🛠️ Herramientas incluidas
+La inteligencia artificial permite ampliar el alcance del sistema más allá del catálogo base, facilitando el acceso a información actualizada y adaptada a cada consulta.
 
-| Herramienta | Descripción |
-|---|---|
-| **Atlas con IA** | Busca cualquier fármaco y obtén información completa generada por IA |
-| **Calculadora de Dosis** | Calcula dosis exactas según especie, peso y concentración |
-| **Diluciones IV** | Fórmula C₁V₁=C₂V₂ y velocidad de goteo |
-| **Interacciones** | Detecta combinaciones peligrosas entre fármacos |
-| **Comparador** | Compara dos fármacos lado a lado |
-| **Enfermedades** | Protocolos de tratamiento para 12 patologías comunes |
-| **Chat IA** | Chat libre de consultas farmacológicas |
-| **Quiz** | 10 preguntas generadas por IA para preparar exámenes |
-| **Glosario** | 31 términos farmacológicos explicados |
-| **Resumen** | Genera material de estudio organizado por categoría |
+Herramientas incluidas
 
----
+Atlas con IA: Permite buscar cualquier fármaco y obtener información completa generada mediante inteligencia artificial
+Calculadora de Dosis: Calcula dosis según especie, peso y concentración
+Diluciones IV: Aplicación de la fórmula C₁V₁ = C₂V₂ y cálculo de velocidad de goteo
+Interacciones: Identifica posibles combinaciones peligrosas entre fármacos
+Comparador: Permite comparar dos fármacos simultáneamente
+Enfermedades: Protocolos de tratamiento para patologías comunes
+Chat IA: Sistema de consulta farmacológica en tiempo real
+Quiz: Preguntas generadas para evaluación y práctica académica
+Glosario: Definición de términos farmacológicos
+Resumen: Generación de material de estudio organizado
 
-## 📁 Estructura
+Fármacos en el catálogo base
 
-```
-ujms-atlas-veterinario/
-└── index.html      ← Todo el proyecto en un solo archivo
-```
+Antibióticos: Amoxicilina, Enrofloxacina, Oxitetraciclina, Penicilina G Procaínica
 
----
+Antiparasitarios: Ivermectina, Albendazol, Closantel
 
-## 💊 Fármacos en el catálogo base
+Antiinflamatorios no esteroideos: Meloxicam, Flunixin Meglumina, Ketoprofeno
 
-**Antibióticos:** Amoxicilina · Enrofloxacina · Oxitetraciclina · Penicilina G Procaínica
+Anestésicos: Ketamina, Xilazina, Propofol
 
-**Antiparasitarios:** Ivermectina · Albendazol · Closantel
+Antifúngicos: Itraconazol, Ketoconazol
 
-**AINEs:** Meloxicam · Flunixin Meglumina · Ketoprofeno
+Hormonas: Oxitocina, Progesterona
 
-**Anestésicos:** Ketamina · Xilazina · Propofol
+La búsqueda con inteligencia artificial permite consultar fármacos adicionales fuera del catálogo base
 
-**Antifúngicos:** Itraconazol · Ketoconazol
+Aviso académico
 
-**Hormonas:** Oxitocina · Progesterona
+La información presentada, incluyendo dosis y protocolos, tiene fines educativos. Se recomienda consultar fuentes oficiales actualizadas y aplicar criterio clínico profesional en cada caso.
 
-> La búsqueda con IA permite consultar **cualquier fármaco veterinario** más allá del catálogo base.
+Tecnologías
 
----
+HTML5, CSS3 y JavaScript
+Integración con API de inteligencia artificial (Claude — Anthropic)
+Fuentes tipográficas de Google Fonts
+Sistema sin frameworks, funcional en modo local para el catálogo base
 
-## 🌐 Despliegue en GitHub Pages
+Derechos de autor
 
-```bash
-# 1. Crea un repositorio público en github.com
-# 2. Sube el archivo index.html
-# 3. Ve a Settings → Pages → Branch: main → Save
-# Tu web estará disponible en:
-# https://TU_USUARIO.github.io/ujms-atlas-veterinario/
-```
+© 2026 Brian Serrudo Beizaga
 
----
+Todos los derechos reservados.
 
-## ⚠️ Aviso académico
-
-Las dosis e información presentadas son **orientativas** con fines educativos.
-Siempre consultar el vademécum actualizado y aplicar criterio clínico bajo supervisión profesional.
-
----
-
-## 🔧 Tecnologías
-
-- HTML5 + CSS3 + JavaScript vanilla
-- [Claude API](https://anthropic.com) — Anthropic (claude-sonnet-4-6)
-- Google Fonts — Playfair Display, Source Sans 3, EB Garamond
-- Sin frameworks — funciona offline para el catálogo base
-
----
-
-**© 2025 UJMS — Carrera de Veterinaria, Sede Villa Montes, Tarija, Bolivia**
+Este software es propiedad intelectual de su autor. Queda prohibida su reproducción, distribución o modificación total o parcial sin autorización expresa.
