@@ -103,6 +103,9 @@ header{background:var(--blue);color:#fff;position:sticky;top:0;z-index:200;box-s
 #si{width:100%;padding:11px 14px 11px 40px;border:2px solid var(--border);border-radius:var(--rs);font-size:.9rem;font-family:'Source Sans 3',sans-serif;background:var(--gl);color:var(--text);transition:.2s;outline:none}
 #si:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(0,48,135,.1)}
 #si::placeholder{color:var(--gray)}
+#enfSearch{width:100%;padding:11px 14px 11px 40px;border:2px solid var(--border);border-radius:var(--rs);font-size:.9rem;font-family:'Source Sans 3',sans-serif;background:var(--gl);color:var(--text);transition:.2s;outline:none}
+#enfSearch:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(0,48,135,.1)}
+#enfSearch::placeholder{color:var(--gray)}
 .sic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:.88rem;pointer-events:none}
 #sb{padding:11px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;transition:.2s;white-space:nowrap}
 #sb:hover{background:var(--blue-mid)}
@@ -684,6 +687,11 @@ body.printing > *:not(#printarea){pointer-events:none}
       <select class="fc" id="rtipo" style="max-width:240px"><option value="tabla">Tabla comparativa</option><option value="mecanismos">Mecanismos de acción</option><option value="dosis">Dosis rápidas</option><option value="contraindicaciones">Contraindicaciones clave</option></select>
       <button class="btnp" id="bres" style="width:auto;padding:10px 20px">Generar con IA</button>
     </div>
+    <div class="rfile" style="margin-top:12px;margin-bottom:12px">
+      <label for="rfile" style="font-size:.83rem;color:var(--soft);display:block;margin-bottom:6px">Opcional: sube un archivo con texto para resumir (txt, md, html, pdf, doc, docx)</label>
+      <input type="file" id="rfile" accept=".txt,.md,.html,.pdf,.doc,.docx" multiple style="width:100%">
+      <div style="font-size:.78rem;color:var(--soft);margin-top:4px">Se intentará extraer y resumir el contenido del archivo cargado.</div>
+    </div>
     <div class="rres" id="rres">El resumen aparecerá aquí...</div>
   </div>
 </div>
@@ -975,6 +983,31 @@ function safeJSON(raw){
   // Try 4: remove trailing commas
   try{return JSON.parse(chunk.replace(/,\s*([}\]])/g,'$1'))}catch(e){}
   return null;
+}
+
+function readFileText(file){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    var name=file.name||'';
+    var lower=name.toLowerCase();
+    if(file.type.startsWith('text/')||/\.(txt|md|html?)$/i.test(lower)){
+      r.onload=function(){resolve(String(r.result||''));};
+      r.onerror=function(){reject(new Error('No se pudo leer el archivo.'))};
+      r.readAsText(file,'utf-8');
+      return;
+    }
+    // Para otros formatos intentamos decodificar bytes a texto
+    r.onload=function(){
+      try{
+        var bytes=new Uint8Array(r.result);
+        var text=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+        if(text.trim())resolve(text);
+        else reject(new Error('No se pudo extraer texto del archivo (formato no compatible).'));
+      }catch(ex){reject(new Error('No se pudo extraer texto del archivo.'))}
+    };
+    r.onerror=function(){reject(new Error('No se pudo leer el archivo.'))};
+    r.readAsArrayBuffer(file);
+  });
 }
 /* ═══════════════════ CLAUDE API ═══════════════════ */
 /* ═══════════════════ API CLAUDE ═══════════════════
@@ -1282,7 +1315,7 @@ async function searchEnf(){
     'Solo JSON.'
   ].join(' ');
   try{
-    var raw=await claude(prompt,2500);
+    var raw=await claude(prompt,1200);
     var d=safeJSON(raw);
     if(d&&d.protocolo){
       var fasesH=(d.protocolo||[]).map(function(f){
@@ -1308,7 +1341,7 @@ async function showEnf(id){
     'Solo JSON.'
   ].join(' ');
   try{
-    var raw=await claude(prompt,2500);
+    var raw=await claude(prompt,1200);
     var d=safeJSON(raw);
     if(d&&d.protocolo){
       var fasesH=(d.protocolo||[]).map(function(f){
@@ -1320,9 +1353,18 @@ async function showEnf(id){
       gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+e.c+',#001f5c)"><button class="aiclose" id="edetclose">&#10005;</button><div class="ainame">'+esc(e.n)+'</div><div class="ailat">'+esc(e.e)+'</div></div><div class="aibody"><div class="a2col"><div class="aisec"><h3>Diagnóstico y Etiología</h3><p>'+esc(d.diagnostico||'')+'</p><br><p>'+esc(d.etiopatogenia||'')+'</p></div><div class="aisec b"><h3>Signos Clínicos</h3><ul>'+sc+'</ul></div></div><div class="aisec"><h3>Protocolo de Tratamiento</h3>'+fasesH+'</div><div class="a2col"><div class="aisec g"><h3>Medidas de Soporte</h3><ul>'+ms+'</ul></div><div class="aisec o"><h3>Pronóstico y Prevención</h3><p><strong>Pronóstico:</strong> '+esc(d.pronostico||'')+'</p><br><p><strong>Prevención:</strong> '+esc(d.prevencion||'')+'</p></div></div></div></div>';
       gid('edet').scrollIntoView({behavior:'smooth'});
       var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
-    }else{gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudo generar el protocolo.</span></div>'}
-  }catch(e2){gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión.</span></div>'}
+    } else {
+      gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.</span></div>';
+      var fallbackHtml='<div class="a2col" style="margin-top:12px"><div class="aisec"><h3>Fármacos sugeridos</h3><ul>'+e.fs.map(function(f){return'<li>'+esc(f)+'</li>'}).join('')+'</ul></div></div>';
+      gid('edet').insertAdjacentHTML('beforeend',fallbackHtml);
+    }
+  }catch(e2){
+    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión con el servicio IA. Muestra protocolos locales.</span></div>';
+    var fallbackHtml='<div class="a2col" style="margin-top:12px"><div class="aisec"><h3>Fármacos sugeridos</h3><ul>'+e.fs.map(function(f){return'<li>'+esc(f)+'</li>'}).join('')+'</ul></div></div>';
+    gid('edet').insertAdjacentHTML('beforeend',fallbackHtml);
+  }
 }
+
 
 /* ═══════════════════ CHAT ═══════════════════ */
 var chatMsgs=[],chatBusy=false;
@@ -1443,14 +1485,52 @@ async function genResumen(){
   var cat=gid('rcat').value,tipo=gid('rtipo').value;
   var btn=gid('bres');btn.disabled=true;btn.textContent='Generando...';
   gid('rres').textContent='Generando resumen con IA...';
+
+  var archivo=gid('rfile');
+  var fileContent='';
+  if(archivo&&archivo.files&&archivo.files.length>0){
+    try{
+      var walls=[];
+      for(var i=0;i<archivo.files.length;i++){
+        var f=archivo.files[i];
+        var t=await readFileText(f);
+        if(t&&t.trim())walls.push('===== '+f.name+' =====\n'+t.trim());
+      }
+      if(walls.length>0){
+        fileContent=walls.join('\n\n');
+        if(fileContent.length>16000)fileContent=fileContent.slice(0,16000)+'\n\n[...texto truncado por límite...]';
+      }
+    }catch(err){
+      gid('rres').textContent='Error al leer archivo: '+(err.message||'intenta con otro archivo');
+      btn.disabled=false;btn.textContent='Generar con IA';
+      return;
+    }
+  }
+
   var farmacos=(cat==='todos'?DRUGS:DRUGS.filter(function(d){return d.cat===cat})).map(function(d){return d.n}).join(', ');
   var tipoDesc={tabla:'tabla comparativa con columnas: Fármaco, Categoría, Mecanismo de acción, Dosis clave, Especie principal, Contraindicación principal',mecanismos:'descripción del mecanismo de acción de cada fármaco, organizado y claro',dosis:'tabla de dosis rápidas por especie y vía de administración para cada fármaco',contraindicaciones:'lista de contraindicaciones y advertencias de seguridad más importantes de cada fármaco'};
-  var prompt='Farmacólogo veterinario docente universitario. Genera un resumen de estudio en formato: '+tipoDesc[tipo]+' para los siguientes fármacos veterinarios: '+farmacos+'. El resumen debe ser claro, bien organizado y útil para examen universitario. Responde en texto plano bien formateado con alineación usando guiones y tabulación. Sin markdown, sin asteriscos. Máximo 1400 palabras.';
+
+  var prompt='Farmacólogo veterinario docente universitario. '; 
+
+  if(fileContent){
+    prompt += 'Resume el siguiente contenido textual para que un estudiante pueda estudiar para el examen. '; 
+    prompt += 'Debes generar un resumen claro y organizado con puntos clave, definición de términos y acciones clínicas. '; 
+    prompt += 'Texto cargado:\n'+fileContent+'\n\n';
+    prompt += 'Adicionalmente, incluye una breve guía de estudio basada en la categoría "'+cat+'" y el tipo "'+tipo+'". ';
+  } else {
+    prompt += 'Genera un resumen de estudio en formato: '+tipoDesc[tipo]+' para los siguientes fármacos veterinarios: '+farmacos+'. ';
+  }
+
+  prompt += 'El resumen debe ser claro, bien organizado y útil para examen universitario. Responde en texto plano bien formateado con alineación usando guiones y tabulación. Sin markdown, sin asteriscos. Máximo 1400 palabras.';
+
   try{
-    var raw=await claude(prompt,1600);
+    var raw=await claude(prompt,1800);
     gid('rres').textContent=raw.trim();
-  }catch(e){gid('rres').textContent='Error de conexión. Intenta de nuevo.'}
-  finally{btn.disabled=false;btn.textContent='Generar con IA'}
+  }catch(e){
+    gid('rres').textContent='Error de conexión. Intenta de nuevo.';
+  }finally{
+    btn.disabled=false;btn.textContent='Generar con IA';
+  }
 }
 
 /* ═══════════════════ INIT & EVENT LISTENERS ═══════════════════ */
