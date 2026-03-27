@@ -1482,11 +1482,11 @@ async function searchEnf(){
   gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo para "'+esc(q)+'"...</p></div>';
   var fakeEnf={id:0,n:q,e:'Múltiples especies',c:'#003087'};
   var prompt=[
-    'Eres un veterinario clínico experto. Tu tarea es generar un protocolo de tratamiento DETALLADO para: "'+q+'"',
-    'IMPORTANTE: Primero verifica que entendiste correctamente la enfermedad y luego responde ÚNICAMENTE con JSON válido (sin markdown, sin explicaciones, sin código bloques).',
-    'Estructura exacta requerida:',
-    '{"diagnostico":"diagnóstico clínico detallado","etiopatogenia":"causa y mecanismo de la enfermedad","signosClinicos":["signo1","signo2","signo3"],"protocolo":[{"fase":"Fase 1 - Estabilización","farmacos":[{"nombre":"nombre del fármaco","dosis":"dosis exacta","via":"vía de administración","frecuencia":"cada X horas","duracion":"X días"}],"objetivo":"objetivo de esta fase"}],"medidasSoporte":["medida1","medida2"],"pronostico":"pronóstico clínico","prevencion":"medidas preventivas"}',
-    'REGLAS: [[NO AGREGUES MARKDOWN NI BLOQUES DE CÓDIGO]] [[DEVUELVE SOLO JSON]] [[ASEGÚRATE DE INCLUIR AL MENOS UNA FASE EN protocolo[] ]] [[CADA FÁRMACO DEBE TENER nombre, dosis, via, frecuencia, duracion]]'
+   'Eres veterinario clínico especialista en enfermedades animales. Busca: '+q+'.',
+'Responde SOLO con JSON compacto (sin espacios extra, sin markdown):',
+'{"encontrado":true,"nombre":"","nombreCientifico":"","categoria":"","especiesAfectadas":"","descripcion":"max 2 oraciones","causa":"max 1 oracion","transmision":"max 2 oraciones","signosClinicos":["","",""],"diagnostico":["",""],"tratamiento":["","",""],"prevencion":["",""],"pronostico":"max 1 oracion","zoonotica":false,"avisoClinico":""}',
+'Si no es enfermedad veterinaria: {"encontrado":false,"mensaje":""}',
+'SOLO JSON.'
   ].join(' ');
   try{
     var result=await askClaudeJSON(prompt,1300);
