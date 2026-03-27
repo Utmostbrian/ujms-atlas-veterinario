@@ -1470,140 +1470,207 @@ async function compFarmacos(){
 }
 
 /* ═══════════════════ ENFERMEDADES ═══════════════════ */
-var loadingEnf=false;
-
-function showEnfLoading(){
-  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Consultando con IA...</p></div>';
-}
-
-function bindEnfClose(){
-  var b=gid('eic');
-  if(b)b.addEventListener('click',function(){gid('edet').innerHTML='';});
-}
-
-function renderEnfAI(data,q){
-  var dDiv=gid('edet');
-
-  if(!data||!data.encontrado){
-    dDiv.innerHTML='<div class="wbox"><span>&#9888;</span><span>'+esc((data&&data.mensaje)||'No se encontró información.')+'</span></div>';
+function renderEnfs(filter){
+  var g=gid('egrid');g.innerHTML='';
+  if(!ENFS||ENFS.length===0){
+    g.innerHTML='<div class="empty" style="grid-column:1/-1"><h3>Enfermedades no disponibles</h3><p>Usa el buscador con IA para buscar cualquier enfermedad</p></div>';
     return;
   }
+  var list=ENFS;
+  if(filter){
+    var q=filter.toLowerCase();
+    list=ENFS.filter(function(e){
+      return e.n.toLowerCase().includes(q)||
+             e.e.toLowerCase().includes(q)||
+             e.d.toLowerCase().includes(q)
+    });
+  }
+  gid('enfcnt').textContent=list.length+' enfermedad'+(list.length!==1?'es':'');
+  if(list.length===0){
+    g.innerHTML='<div class="empty" style="grid-column:1/-1"><h3>Sin coincidencias</h3><p>Intenta otro término de búsqueda</p></div>';
+    return;
+  }
+  list.forEach(function(e){
+    var c=document.createElement('div');
+    c.className='ecard';
+    c.dataset.eid=e.id;
+    c.innerHTML=
+      '<div class="ech" style="background:'+e.c+'">'+esc(e.n)+'</div>'+
+      '<div class="ecb">'+esc(e.d)+'</div>'+
+      '<div class="ecf"><span>'+esc(e.e)+'</span><span>'+e.fs.length+' fármacos</span></div>';
+    g.appendChild(c);
+  });
+}
 
-  //  asegurar arrays
-  var sc=Array.isArray(data.signosClinicos)?data.signosClinicos:[];
-  var ms=Array.isArray(data.medidasSoporte)?data.medidasSoporte:[];
-  var proto=Array.isArray(data.protocolo)?data.protocolo:[];
+function normalizeEnfResponse(d){
+  if(!d) return null;
+  return {
+    encontrado: d.encontrado !== false,
+    diagnostico: d.diagnostico || '',
+    etiopatogenia: d.etiopatogenia || '',
+    signosClinicos: Array.isArray(d.signosClinicos)?d.signosClinicos:[],
+    protocolo: Array.isArray(d.protocolo)?d.protocolo:[],
+    medidasSoporte: Array.isArray(d.medidasSoporte)?d.medidasSoporte:[],
+    pronostico: d.pronostico || '',
+    prevencion: d.prevencion || ''
+  };
+}
 
-  var scHTML=sc.map(x=>'<li>'+esc(x)+'</li>').join('');
-  var msHTML=ms.map(x=>'<li>'+esc(x)+'</li>').join('');
+// 🔥 NUEVO: función con reintento automático
+async function askWithRetry(prompt){
+  try{
+    var res = await askClaudeJSON(prompt, 2500);
 
-  //  PROTOCOLO (IMPORTANTE)
-  var fasesH=proto.map(function(f){
-    var farmacos=Array.isArray(f.farmacos)?f.farmacos:[];
+    if(res.raw && !res.raw.trim().endsWith('}')){
+      throw new Error('JSON truncado');
+    }
 
-    var fH=farmacos.map(function(x){
-      return '<tr>'+
-        '<td>'+esc(x.nombre||'—')+'</td>'+
-        '<td>'+esc(x.dosis||'—')+'</td>'+
-        '<td>'+esc(x.via||'—')+'</td>'+
-        '<td>'+esc(x.frecuencia||'—')+'</td>'+
-        '<td>'+esc(x.duracion||'—')+'</td>'+
-      '</tr>';
-    }).join('');
+    return res;
 
-    return '<div style="margin-bottom:14px">'+
-      '<div style="font-weight:700;color:var(--blue);margin-bottom:6px">'+esc(f.fase||'Fase')+'</div>'+
-      '<div style="font-size:.82rem;color:var(--soft);margin-bottom:7px"><strong>Objetivo:</strong> '+esc(f.objetivo||'—')+'</div>'+
-      (fH?'<table class="dtbl"><thead><tr><th>Fármaco</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+fH+'</tbody></table>':'<p>Sin fármacos especificados</p>')+
-    '</div>';
-  }).join('');
-
-  dDiv.innerHTML=
-  '<div class="aip">'+
-    '<div class="aiph">'+
-      '<button class="aiclose" id="eic">&#10005;</button>'+
-      '<div class="ainame">'+esc(q)+'</div>'+
-      '<div class="ailat">Protocolo IA</div>'+
-      '<div class="aitags"><span class="aitag ia">IA</span></div>'+
-    '</div>'+
-
-    '<div class="aibody">'+
-
-      '<div class="a2col">'+
-        '<div class="aisec"><h3>Diagnóstico</h3><p>'+esc(data.diagnostico||'—')+'</p></div>'+
-        '<div class="aisec b"><h3>Etiopatogenia</h3><p>'+esc(data.etiopatogenia||'—')+'</p></div>'+
-      '</div>'+
-
-      '<div class="aisec"><h3>Signos Clínicos</h3><ul>'+(scHTML||'<li>—</li>')+'</ul></div>'+
-
-      '<div class="aisec"><h3>Protocolo de Tratamiento</h3>'+(fasesH||'<p>No disponible</p>')+'</div>'+
-
-      '<div class="a2col">'+
-        '<div class="aisec g"><h3>Medidas de Soporte</h3><ul>'+(msHTML||'<li>—</li>')+'</ul></div>'+
-        '<div class="aisec o"><h3>Pronóstico</h3><p>'+esc(data.pronostico||'—')+'</p><br><p><strong>Prevención:</strong> '+esc(data.prevencion||'—')+'</p></div>'+
-      '</div>'+
-
-    '</div>'+
-  '</div>';
-
-  bindEnfClose();
+  }catch(e){
+    console.warn('Reintentando con más tokens...');
+    return await askClaudeJSON(prompt, 3500);
+  }
 }
 
 async function searchEnf(){
   var q=(gid('enfSearch').value||'').trim();
-  if(!q||loadingEnf)return;
+  if(!q){alert('Ingresa el nombre o síntomas de una enfermedad');return;}
 
-  loadingEnf=true;
   var btn=gid('btnEnfSearch');
   btn.disabled=true;
-  btn.textContent='Consultando...';
+  btn.textContent='Buscando...';
 
-  showEnfLoading();
+  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo para "'+esc(q)+'"...</p></div>';
+
+  var fakeEnf={id:0,n:q,e:'Múltiples especies',c:'#003087'};
 
   var prompt=[
-    'Eres veterinario clínico. Busca: '+q+'.',
-    'Responde SOLO con JSON:',
+    'Eres un veterinario clínico experto en enfermedades animales. Busca: '+q+'.',
+    'Genera un protocolo veterinario completo.',
+    'Responde SOLO con JSON válido, compacto.',
+    'Limita la longitud: máximo 2 fases y máximo 3 fármacos por fase.',
+    'Estructura EXACTA:',
     '{"encontrado":true,"diagnostico":"","etiopatogenia":"","signosClinicos":["","",""],"protocolo":[{"fase":"","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":""}],"medidasSoporte":["",""],"pronostico":"","prevencion":""}',
-    'Si no es enfermedad: {"encontrado":false,"mensaje":""}',
+    'Si no es enfermedad veterinaria: {"encontrado":false,"mensaje":""}',
+    '[[NO CAMBIAR CLAVES]] [[SOLO JSON]]'
+  ].join(' ');
+
+  try{
+    var result=await askWithRetry(prompt);
+    var raw=result.raw;
+    var d=normalizeEnfResponse(result.d);
+
+    if(d && d.encontrado===false){
+      gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>No es una enfermedad veterinaria válida.</span></div>';
+    }
+    else if(
+      d &&
+      d.protocolo &&
+      Array.isArray(d.protocolo) &&
+      d.protocolo.length>0 &&
+      d.protocolo[0].farmacos &&
+      d.protocolo[0].farmacos.length>0
+    ){
+      var fasesH=(d.protocolo||[]).map(function(f){
+        var fH=(f.farmacos||[]).map(function(x){
+          return '<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>';
+        }).join('');
+        return '<div style="margin-bottom:14px">'+
+          '<div style="font-weight:700;color:var(--blue);font-size:.93rem;margin-bottom:6px">'+esc(f.fase||'')+'</div>'+
+          '<div style="font-size:.82rem;color:var(--soft);margin-bottom:7px"><strong>Objetivo:</strong> '+esc(f.objetivo||'')+'</div>'+
+          '<table class="dtbl"><thead><tr><th>Fármaco</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+fH+'</tbody></table>'+
+        '</div>';
+      }).join('');
+
+      var sc=(d.signosClinicos||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+      var ms=(d.medidasSoporte||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+
+      gid('edet').innerHTML=
+      '<div class="aip">'+
+        '<div class="aiph" style="background:linear-gradient(135deg,#003087,#001f5c)">'+
+          '<button class="aiclose" id="edetclose2">&#10005;</button>'+
+          '<div class="ainame">'+esc(q)+'</div>'+
+          '<div class="ailat">Protocolo generado por IA</div>'+
+          '<div class="aitags"><span class="aitag ia">IA</span></div>'+
+        '</div>'+
+        '<div class="aibody">'+
+          '<div class="a2col">'+
+            '<div class="aisec"><h3>Diagnóstico y Etiología</h3>'+
+              '<p>'+esc(d.diagnostico||'')+'</p><br>'+
+              '<p>'+esc(d.etiopatogenia||'')+'</p>'+
+            '</div>'+
+            '<div class="aisec b"><h3>Signos Clínicos</h3><ul>'+sc+'</ul></div>'+
+          '</div>'+
+          '<div class="aisec"><h3>Protocolo de Tratamiento</h3>'+fasesH+'</div>'+
+          '<div class="a2col">'+
+            '<div class="aisec g"><h3>Medidas de Soporte</h3><ul>'+ms+'</ul></div>'+
+            '<div class="aisec o"><h3>Pronóstico y Prevención</h3>'+
+              '<p><strong>Pronóstico:</strong> '+esc(d.pronostico||'')+'</p><br>'+
+              '<p><strong>Prevención:</strong> '+esc(d.prevencion||'')+'</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+
+      gid('edet').scrollIntoView({behavior:'smooth'});
+
+      var ec=gid('edetclose2');
+      if(ec) ec.addEventListener('click',()=>gid('edet').innerHTML='');
+
+    }else{
+      console.warn('Respuesta IA inválida:',raw,d);
+      showEnfRawResponse(fakeEnf,'Respuesta no estructurada:',raw||'Sin datos.');
+    }
+
+  }catch(e2){
+    console.error('Error:',e2.message);
+    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error: '+esc(e2.message)+'</span></div>';
+  }
+  finally{
+    btn.disabled=false;
+    btn.textContent='Buscar con IA';
+  }
+}
+
+async function showEnf(id){
+  var e=ENFS.find(x=>x.id===id);
+  if(!e){
+    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Enfermedad no encontrada.</span></div>';
+    return;
+  }
+
+  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo para '+esc(e.n)+'...</p></div>';
+
+  var prompt=[
+    'Eres un veterinario clínico experto en '+esc(e.e)+'.',
+    'Genera protocolo completo para '+e.n+'.',
+    'Máximo 2 fases, máximo 3 fármacos por fase.',
+    '{"diagnostico":"","etiopatogenia":"","signosClinicos":["","",""],"protocolo":[{"fase":"","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":""}],"medidasSoporte":["",""],"pronostico":"","prevencion":""}',
     'SOLO JSON'
   ].join(' ');
 
   try{
-    var raw=await claude(prompt,4000);
+    var result=await askWithRetry(prompt);
+    var raw=result.raw;
+    var d=normalizeEnfResponse(result.d);
 
-    if(!raw||raw.trim()===''){
-      renderEnfAI({encontrado:false,mensaje:'Respuesta vacía'},q);
-      return;
+    if(d && d.protocolo && d.protocolo.length>0){
+      searchEnf = async ()=>{}; // opcional evitar duplicidad
+      gid('enfSearch').value=e.n;
+      // reutiliza render
+      var fake={id:0,n:e.n,e:e.e,c:e.c};
+      // reutiliza flujo
+      ENFS.push(fake);
+      searchEnf();
+    }else{
+      console.warn('Respuesta inválida:',raw,d);
+      showEnfRawResponse(e,'Respuesta no estructurada:',raw||'Sin datos.');
     }
 
-    var parsed=safeJSON(raw);
-
-    // fallback igual que tu atlas
-    if(!parsed){
-      var m=raw.match(/\{[\s\S]*"encontrado"[\s\S]*\}/);
-      if(m) parsed=safeJSON(m[0]);
-    }
-
-    if(!parsed){
-      var m2=raw.match(/\{[\s\S]*\}/);
-      if(m2) parsed=safeJSON(m2[0]);
-    }
-
-    if(!parsed){
-      console.error('Error parseando:',raw.substring(0,500));
-      parsed={encontrado:false,mensaje:'Error procesando respuesta'};
-    }
-
-    renderEnfAI(parsed,q);
-
-  }catch(err){
-    console.error('searchEnf error:',err);
-    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>'+esc(err.message||'Error desconocido')+'</span></div>';
-  }
-  finally{
-    loadingEnf=false;
-    btn.disabled=false;
-    btn.textContent='Buscar con IA';
+  }catch(e2){
+    console.error('Error:',e2.message);
+    showEnfFallback(e,'Error ('+e2.message+')','Fármacos para '+e.n);
   }
 }
 /* ═══════════════════ CHAT ═══════════════════ */
