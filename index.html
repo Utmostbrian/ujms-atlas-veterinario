@@ -1126,6 +1126,12 @@ async function askClaudeJSON(prompt,tokens){
   d=parseJSONResponse(raw);
   return {d,raw};
 }
+function showEnfRawResponse(e,title,raw){
+  var content = esc(String(raw||'')).replace(/\n/g,'<br>');
+  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose">&#10005;</button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>'+esc(title)+'</h3><div style="white-space:pre-wrap;word-break:break-word;font-size:.85rem;color:var(--text);padding:10px;background:rgba(0,0,0,.05);border-radius:8px;line-height:1.45;">'+content+'</div></div><div class="aisec g"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div></div></div>';
+  gid('edet').scrollIntoView({behavior:'smooth'});
+  var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
+}
 function showEnfFallback(e,title,subtitle){
   var fallbackList=Array.isArray(e.fs)?e.fs:[];
   var drugItems=renderFallbackDrugItems(fallbackList);
@@ -1498,8 +1504,7 @@ async function searchEnf(){
       var ec=gid('edetclose2');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
     }else{
       console.warn('Respuesta de IA sin protocolo válido:',raw,d);
-      var fallback=ENFS.find(function(x){return x.n.toLowerCase()===q.toLowerCase()})||fakeEnf;
-      showEnfFallback(fallback,'La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.','Fármacos sugeridos para '+q);
+      showEnfRawResponse(fakeEnf,'Respuesta de IA no estructurada para "'+q+'":',raw||'No se recibió respuesta válida.');
     }
   }catch(e2){
     console.error('Error buscando enfermedad:',e2.message);
@@ -1535,7 +1540,7 @@ async function showEnf(id){
       var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
     } else {
       console.warn('Respuesta inválida de IA para '+e.n+':',raw,d);
-      showEnfFallback(e,'La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.','Fármacos sugeridos para '+e.n);
+      showEnfRawResponse(e,'Respuesta de IA no estructurada para '+e.n+':',raw||'No se recibió respuesta válida.');
     }
   }catch(e2){
     console.error('Error cargando protocolo:',e2.message);
