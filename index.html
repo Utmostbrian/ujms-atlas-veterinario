@@ -1038,26 +1038,60 @@ function now(){return new Date().toLocaleTimeString('es',{hour:'2-digit',minute:
 
 function safeJSON(raw){
   if(!raw||typeof raw!=='string')return null;
-  // Strip markdown fences - remove all backtick blocks
   var s=raw.trim();
-  s=s.replace(/```json/g,'').replace(/```/g,'').trim();
-  // Try 1: direct JSON.parse (fastest, handles all cases)
-  try{return JSON.parse(s)}catch(e){}
-  // Try 2: extract from first { to last }
-  var o=s.indexOf('{'),a=s.indexOf('[');
-  if(o===-1&&a===-1)return null;
-  var isArr=(a!==-1&&(o===-1||a<o));
-  var open=isArr?'[':'{',close=isArr?']':'}';
-  var start=s.indexOf(open);if(start===-1)return null;
-  var end=s.lastIndexOf(close);if(end===-1||end<=start)return null;
-  var chunk=s.slice(start,end+1);
-  // Try 3: JSON.parse on extracted chunk
-  try{return JSON.parse(chunk)}catch(e){}
-  // Try 4: remove trailing commas
-  try{return JSON.parse(chunk.replace(/,\s*([}\]])/g,'$1'))}catch(e){}
-  return null;
+  s=s.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+  var objStart=s.indexOf('{');
+  var arrStart=s.indexOf('[');
+  if(objStart===-1 && arrStart===-1) return null;
+  var isArr;
+  if(objStart===-1){isArr=true}
+  else if(arrStart===-1){isArr=false}
+  else{isArr=arrStart<objStart}
+  var openChar=isArr?'[':'{';
+  var closeChar=isArr?']':'}';
+  var start=s.indexOf(openChar);
+  if(start===-1) return null;
+  s=s.slice(start);
+  var depth=0,end=-1;
+  for(var k=0;k<s.length;k++){
+    if(s[k]===openChar) depth++;
+    else if(s[k]===closeChar){ depth--; if(depth===0){ end=k; break }}
+  }
+  if(end===-1){
+    var last=s.lastIndexOf(closeChar);
+    if(last===-1) return null;
+    s=s.slice(0,last+1);
+  } else {
+    s=s.slice(0,end+1);
+  }
+  try{return JSON.parse(s)}
+  catch(e){
+    try{return JSON.parse(s.replace(/,\s*([}\]])/g,'$1'))}
+    catch(e2){return null}
+  }
 }
-
+function parseJSONResponse(raw){
+  var d=safeJSON(raw);
+  if(d) return d;
+  if(!raw||typeof raw!=='string') return null;
+  var m=raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+  return m?safeJSON(m[0]):null;
+}
+async function askClaudeJSON(prompt,tokens){
+  var raw=await claude(prompt,tokens);
+  var d=parseJSONResponse(raw);
+  if(d) return {d,raw};
+  var followUp=prompt+'\n\nIMPORTANTE: Responde SOLO con JSON válido, EXACTO y sin texto adicional ni bloque de código. Si tu primera respuesta no fue JSON válido, corrígela ahora.';
+  raw=await claude(followUp,Math.min(1000,tokens));
+  d=parseJSONResponse(raw);
+  return {d,raw};
+}
+function showEnfFallback(e,title,subtitle){
+  var fallbackList=Array.isArray(e.fs)?e.fs:[];
+  var drugItems=fallbackList.length?fallbackList.map(function(f){return'<li style="font-size:.85rem;margin:4px 0">'+esc(f)+'</li>'}).join(''):'<li style="font-size:.85rem;margin:4px 0">No hay fármacos disponibles.</li>';
+  gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>'+esc(title)+'</span></div><div class="aisec" style="margin-top:12px;padding:14px;background:var(--gl);border-radius:var(--rs)"><h3>'+esc(subtitle)+'</h3><ul>'+drugItems+'</ul></div>';
+  gid('edet').scrollIntoView({behavior:'smooth'});
+}
 function readFileText(file){
   return new Promise(function(resolve,reject){
     var r=new FileReader();
@@ -1408,8 +1442,9 @@ async function searchEnf(){
     'REGLAS: [[NO AGREGUES MARKDOWN NI BLOQUES DE CÓDIGO]] [[DEVUELVE SOLO JSON]] [[ASEGÚRATE DE INCLUIR AL MENOS UNA FASE EN protocolo[] ]] [[CADA FÁRMACO DEBE TENER nombre, dosis, via, frecuencia, duracion]]'
   ].join(' ');
   try{
-    var raw=await claude(prompt,1300);
-    var d=safeJSON(raw);
+    var result=await askClaudeJSON(prompt,1300);
+    var raw=result.raw;
+    var d=result.d;
     if(d&&d.protocolo&&Array.isArray(d.protocolo)&&d.protocolo.length>0){
       var fasesH=(d.protocolo||[]).map(function(f){
         var fH=(f.farmacos||[]).map(function(x){return'<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>'}).join('');
@@ -1431,7 +1466,8 @@ async function searchEnf(){
   finally{btn.disabled=false;btn.textContent='Buscar con IA'}
 }
 async function showEnf(id){
-  var e=ENFS.find(function(x){return x.id===id});if(!e)return;
+  var e=ENFS.find(function(x){return x.id===id});
+  if(!e){gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Enfermedad no encontrada.</span></div>';return;}
   gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Cargando protocolo para '+esc(e.n)+'...</p></div>';
   var prompt=[
     'Eres un veterinario clínico experto especializado en '+esc(e.e)+'.',
@@ -1442,8 +1478,9 @@ async function showEnf(id){
     '[[CRÍTICO: INCLUYE AL MENOS UNA FASE COMPLETA]] [[CADA FÁRMACO COMPLETO]] [[SOLO JSON]]'
   ].join(' ');
   try{
-    var raw=await claude(prompt,1300);
-    var d=safeJSON(raw);
+    var result=await askClaudeJSON(prompt,1300);
+    var raw=result.raw;
+    var d=result.d;
     if(d&&d.protocolo&&Array.isArray(d.protocolo)&&d.protocolo.length>0){
       var fasesH=(d.protocolo||[]).map(function(f){
         var fH=(f.farmacos||[]).map(function(x){return'<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>'}).join('');
@@ -1456,15 +1493,11 @@ async function showEnf(id){
       var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
     } else {
       console.warn('Respuesta inválida de IA para '+e.n+':',raw,d);
-      gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.</span></div>';
-      var fallbackHtml='<div class="aisec" style="margin-top:12px;padding:14px;background:var(--gl);border-radius:var(--rs)"><h3>Fármacos sugeridos para '+esc(e.n)+'</h3><ul>'+e.fs.map(function(f){return'<li style="font-size:.85rem;margin:4px 0">'+esc(f)+'</li>'}).join('')+'</ul></div>';
-      gid('edet').insertAdjacentHTML('beforeend',fallbackHtml);
+      showEnfFallback(e,'La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.','Fármacos sugeridos para '+e.n);
     }
   }catch(e2){
     console.error('Error cargando protocolo:',e2.message);
-    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión con IA ('+esc(e2.message)+'). Mostrando fármacos locales.</span></div>';
-    var fallbackHtml='<div class="aisec" style="margin-top:12px;padding:14px;background:var(--gl);border-radius:var(--rs)"><h3>Fármacos para '+esc(e.n)+'</h3><ul>'+e.fs.map(function(f){return'<li style="font-size:.85rem;margin:4px 0">'+esc(f)+'</li>'}).join('')+'</ul></div>';
-    gid('edet').insertAdjacentHTML('beforeend',fallbackHtml);
+    showEnfFallback(e,'Error de conexión con IA ('+e2.message+'). Mostrando fármacos locales.','Fármacos para '+e.n);
   }
 }
 
