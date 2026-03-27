@@ -1077,6 +1077,46 @@ function parseJSONResponse(raw){
   var m=raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
   return m?safeJSON(m[0]):null;
 }
+function normalizeEnfResponse(d){
+  if(!d||typeof d!=='object') return null;
+  if(d.protocolo && !Array.isArray(d.protocolo)){
+    if(typeof d.protocolo==='object' && d.protocolo!==null){
+      d.protocolo=[d.protocolo];
+    } else if(typeof d.protocolo==='string'){
+      var maybe=safeJSON(d.protocolo);
+      if(Array.isArray(maybe)) d.protocolo=maybe;
+      else if(maybe && typeof maybe==='object') d.protocolo=[maybe];
+    }
+  }
+  function normalizeList(field){
+    if(field===undefined||field===null) return [];
+    if(Array.isArray(field)) return field;
+    if(typeof field==='string') return field.split(/[\r\n;]+/).map(function(x){return x.trim()}).filter(Boolean);
+    return [String(field)];
+  }
+  d.signosClinicos=normalizeList(d.signosClinicos);
+  d.medidasSoporte=normalizeList(d.medidasSoporte);
+  return d;
+}
+function getDrugInfoByName(name){
+  if(!name) return null;
+  var lower=name.toLowerCase();
+  return DRUGS.find(function(drug){return drug.n.toLowerCase()===lower});
+}
+function renderFallbackDrugItems(fallbackList){
+  if(!Array.isArray(fallbackList)||!fallbackList.length){
+    return '<li style="font-size:.85rem;margin:4px 0">No hay fármacos disponibles.</li>';
+  }
+  return fallbackList.map(function(f){
+    var drug=getDrugInfoByName(f);
+    if(drug){
+      var dosis=(drug.dos&&drug.dos[0]&&drug.dos[0][1])?drug.dos[0][1]:'N/A';
+      var via=drug.v||'N/A';
+      return '<li style="font-size:.85rem;margin:4px 0"><strong>'+esc(drug.n)+'</strong> — '+esc(dosis)+' / '+esc(via)+'</li>';
+    }
+    return '<li style="font-size:.85rem;margin:4px 0">'+esc(f)+'</li>';
+  }).join('');
+}
 async function askClaudeJSON(prompt,tokens){
   var raw=await claude(prompt,tokens);
   var d=parseJSONResponse(raw);
@@ -1088,9 +1128,10 @@ async function askClaudeJSON(prompt,tokens){
 }
 function showEnfFallback(e,title,subtitle){
   var fallbackList=Array.isArray(e.fs)?e.fs:[];
-  var drugItems=fallbackList.length?fallbackList.map(function(f){return'<li style="font-size:.85rem;margin:4px 0">'+esc(f)+'</li>'}).join(''):'<li style="font-size:.85rem;margin:4px 0">No hay fármacos disponibles.</li>';
-  gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>'+esc(title)+'</span></div><div class="aisec" style="margin-top:12px;padding:14px;background:var(--gl);border-radius:var(--rs)"><h3>'+esc(subtitle)+'</h3><ul>'+drugItems+'</ul></div>';
+  var drugItems=renderFallbackDrugItems(fallbackList);
+  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose">&#10005;</button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div><div class="aisec g"><h3>'+esc(subtitle)+'</h3><ul>'+drugItems+'</ul></div></div></div>';
   gid('edet').scrollIntoView({behavior:'smooth'});
+  var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
 }
 function readFileText(file){
   return new Promise(function(resolve,reject){
@@ -1444,7 +1485,7 @@ async function searchEnf(){
   try{
     var result=await askClaudeJSON(prompt,1300);
     var raw=result.raw;
-    var d=result.d;
+    var d=normalizeEnfResponse(result.d);
     if(d&&d.protocolo&&Array.isArray(d.protocolo)&&d.protocolo.length>0){
       var fasesH=(d.protocolo||[]).map(function(f){
         var fH=(f.farmacos||[]).map(function(x){return'<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>'}).join('');
@@ -1457,7 +1498,8 @@ async function searchEnf(){
       var ec=gid('edetclose2');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
     }else{
       console.warn('Respuesta de IA sin protocolo válido:',raw,d);
-      gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>La IA devolvió una respuesta incompleta. Intenta con otro nombre o sé más específico (ej: "neumonía bacteriana", "mastitis bovina").</span></div>';
+      var fallback=ENFS.find(function(x){return x.n.toLowerCase()===q.toLowerCase()})||fakeEnf;
+      showEnfFallback(fallback,'La IA no generó un protocolo completo. Mostrando recomendación de fármacos base.','Fármacos sugeridos para '+q);
     }
   }catch(e2){
     console.error('Error buscando enfermedad:',e2.message);
@@ -1480,7 +1522,7 @@ async function showEnf(id){
   try{
     var result=await askClaudeJSON(prompt,1300);
     var raw=result.raw;
-    var d=result.d;
+    var d=normalizeEnfResponse(result.d);
     if(d&&d.protocolo&&Array.isArray(d.protocolo)&&d.protocolo.length>0){
       var fasesH=(d.protocolo||[]).map(function(f){
         var fH=(f.farmacos||[]).map(function(x){return'<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>'}).join('');
