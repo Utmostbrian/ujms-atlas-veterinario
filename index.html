@@ -175,6 +175,79 @@ header{background:var(--blue);color:#fff;position:sticky;top:0;z-index:200;box-s
 .dtbl tr:last-child td{border-bottom:none}
 .dtbl td:first-child{font-weight:600;color:var(--blue)}
 .wbox{background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F97316;border-radius:var(--rs);padding:10px 13px;font-size:.83rem;color:#9A3412;display:flex;gap:9px;align-items:flex-start}
+/* DARK MODE STYLES */
+body.dark .dcard{background:#2a2a3e;border-color:#444;color:#ddd}
+body.dark .dct{background:#2a2a3e}
+body.dark .ecard{background:#2a2a3e;border-color:#444;color:#ddd}
+body.dark .ech{background:#1a1a2e;color:#fff}
+body.dark .ecb{background:#2a2a3e;color:#ddd}
+body.dark .ecf{background:#1a1a2e;color:#999}
+body.dark .aip{background:#2a2a3e;border-color:#444}
+body.dark .aiph{background:linear-gradient(135deg,#0f0f1e,#1a1a2e)!important;color:#fff}
+body.dark .aibody{background:#2a2a3e;color:#ddd}
+body.dark .aisec h3{color:#fff;border-color:#666}
+body.dark .aisec p,body.dark .aisec li{color:#ddd}
+body.dark .aisec.g{background:#1a3a2e;border-color:#2a5a4e}
+body.dark .aisec.b{background:#1a2a4e;border-color:#2a4a6e}
+body.dark .aisec.rr{background:#3a1a2e;border-color:#5a2a4e}
+body.dark .aisec.o{background:#3a2a1e;border-color:#5a4a2e}
+body.dark .dtbl{background:#1e1e2e;color:#ddd}
+body.dark .dtbl th{background:#0f0f1e;color:#fff}
+body.dark .dtbl td{color:#ddd;border-bottom-color:#333}
+body.dark .dtbl tr:nth-child(even) td{background:#2a2a3e}
+body.dark .cres{background:#2a2a3e;border-color:#444;color:#ddd}
+body.dark .wbox{background:#3a2a1e;border-color:#5a4a2e;color:#ffc99d}
+body.dark #si{background:#1a1a2e;border-color:#444;color:#ddd}
+body.dark #si:focus{background:#2a2a3e;border-color:var(--blue);color:#ddd}
+body.dark #si::placeholder{color:#999}
+body.dark #enfSearch{background:#1a1a2e;border-color:#444;color:#ddd}
+body.dark #enfSearch:focus{background:#2a2a3e;border-color:var(--blue);color:#ddd}
+body.dark #enfSearch::placeholder{color:#999}
+body.dark .sic{color:#999}
+body.dark .chip{background:#2a2a3e;border-color:#444;color:#ddd}
+body.dark .chip:hover,body.dark .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+body.dark .shdr{border-bottom-color:#444}
+body.dark .stitle{color:#fff}
+body.dark .scnt{background:#2a2a3e;color:#ddd}
+body.dark .fc{background:#1a1a2e;border-color:#444;color:#ddd}
+body.dark .fc:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,48,135,.15)}
+body.dark .flbl{color:#ddd}
+body.dark .fgrp label{color:#ddd}
+body.dark .btnp{background:var(--blue)}
+body.dark .btnp:hover{background:var(--blue-mid)}
+body.dark .btnp:disabled{background:#666}
+body.dark .empty{color:#999}
+body.dark .empty h3{color:#ddd}
+body.dark .card2{background:#2a2a3e;border-color:#444}
+body.dark .ch{background:var(--blue);color:#fff}
+body.dark .ch.red{background:var(--red-dark)}
+body.dark .cb{background:#2a2a3e;color:#ddd}
+body.dark .crow{border-bottom-color:#444;color:#ddd}
+body.dark .crow span:last-child{color:#fff}
+body.dark .crtitle{color:#fff}
+body.dark .ctw{background:#2a2a3e;border-color:#444}
+body.dark .ctbl{background:#1e1e2e;color:#ddd}
+body.dark .ctbl th{background:var(--blue);color:#fff}
+body.dark .ctbl td{color:#ddd;border-bottom-color:#333}
+body.dark .ctbl tr:nth-child(even) td{background:#2a2a3e}
+body.dark .idlist{background:#1a1a2e;border-color:#444}
+body.dark .idc{background:var(--blue);color:#fff}
+body.dark .iarow input{background:#1a1a2e;border-color:#444;color:#ddd}
+body.dark .iarow input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,48,135,.15)}
+body.dark .iarow button{background:var(--blue-mid)}
+body.dark .iarow button:hover{background:var(--blue)}
+body.dark .cwrap{background:#2a2a3e;border-color:#444}
+body.dark .cmsgs{background:#1e1e2e}
+body.dark .cmsg.u .cbub{background:var(--blue);color:#fff}
+body.dark .cmsg.a .cbub{background:#2a2a3e;color:#ddd}
+body.dark .ctime{color:#999}
+body.dark #chi{background:#1a1a2e;border-color:#444;color:#ddd}
+body.dark #chi:focus{border-color:var(--blue)}
+body.dark #chsend{background:var(--blue)}
+body.dark #chsend:hover{background:var(--blue-mid)}
+body.dark .sbar{background:#2a2a3e;border-color:#444}
+body.dark .slbl2{color:#fff}
+body.dark .srow{color:#ddd}
 /* LOADING */
 .ld{display:flex;align-items:center;justify-content:center;padding:48px 20px;flex-direction:column;gap:12px}
 .sp{width:38px;height:38px;border:4px solid var(--gl);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
@@ -1001,6 +1074,14 @@ function readFileText(file){
       try{
         var bytes=new Uint8Array(r.result);
         var text=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+        // Para .docx: intentar extraer XML con etiquetas w:t
+        if(text.includes('<w:t')){
+          var matches=text.match(/<w:t[^>]*>([^<]*)<\/w:t>/g)||[];
+          if(matches.length>0){
+            var docText=matches.map(function(m){return m.replace(/<w:t[^>]*>|<\/w:t>/g,'')}).join(' ').trim();
+            if(docText.length>30)return resolve(docText);
+          }
+        }
         if(text.trim())resolve(text);
         else reject(new Error('No se pudo extraer texto del archivo (formato no compatible).'));
       }catch(ex){reject(new Error('No se pudo extraer texto del archivo.'))}
@@ -1017,20 +1098,24 @@ function readFileText(file){
 // API key is stored securely in Vercel environment variables (ANTHROPIC_API_KEY)
 
 async function callAPI(payload) {
-  var resp = await fetch('https://ujms-proxy.ybeizagao.workers.dev', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  var data;
-  try { data = await resp.json(); } catch(e) { throw new Error('Respuesta no válida del servidor'); }
-  if (data.error) {
-    throw new Error(data.error.message || 'Error de API: ' + JSON.stringify(data.error));
+  try {
+    var resp = await fetch('https://ujms-proxy.ybeizagao.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      timeout: 30000
+    });
+    if (!resp.ok) throw new Error('Error HTTP ' + resp.status + ' ' + resp.statusText);
+    var data = await resp.json();
+    if (data.error) {
+      throw new Error(data.error.message || 'Error de API: ' + JSON.stringify(data.error));
+    }
+    var text = (data.content && data.content[0] && data.content[0].text) || '';
+    if (!text) throw new Error('La IA no devolvió contenido');
+    return text;
+  } catch(e) {
+    throw new Error('Fallo en la conexión con la API: ' + e.message);
   }
-  if (!resp.ok) throw new Error('Error HTTP ' + resp.status);
-  var text = (data.content && data.content[0] && data.content[0].text) || '';
-  if (!text) throw new Error('Respuesta vacía de la IA');
-  return text;
 }
 
 
@@ -1328,7 +1413,7 @@ async function searchEnf(){
       gid('edet').scrollIntoView({behavior:'smooth'});
       var ec=gid('edetclose2');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
     }else{gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudo generar protocolo. Intenta con otro nombre.</span></div>'}
-  }catch(e2){gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error: '+esc(e2.message||'conexión')+'</span></div>'}
+  }catch(e2){gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión. Verifica que la API esté activa. Intenta de nuevo.</span></div>'}
   finally{btn.disabled=false;btn.textContent='Buscar con IA'}
 }
 async function showEnf(id){
