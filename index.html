@@ -1473,7 +1473,12 @@ async function compFarmacos(){
 var loadingEnf=false;
 
 function showEnfLoading(){
-  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Consultando enfermedad con IA...</p></div>';
+  gid('edet').innerHTML='<div class="ld"><div class="sp"></div><p>Consultando con IA...</p></div>';
+}
+
+function bindEnfClose(){
+  var b=gid('eic');
+  if(b)b.addEventListener('click',function(){gid('edet').innerHTML='';});
 }
 
 function renderEnfAI(data,q){
@@ -1484,18 +1489,32 @@ function renderEnfAI(data,q){
     return;
   }
 
-  var sc=(data.signosClinicos||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
-  var ms=(data.medidasSoporte||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+  //  asegurar arrays
+  var sc=Array.isArray(data.signosClinicos)?data.signosClinicos:[];
+  var ms=Array.isArray(data.medidasSoporte)?data.medidasSoporte:[];
+  var proto=Array.isArray(data.protocolo)?data.protocolo:[];
 
-  var fasesH=(data.protocolo||[]).map(function(f){
-    var fH=(f.farmacos||[]).map(function(x){
-      return '<tr><td>'+esc(x.nombre||'—')+'</td><td>'+esc(x.dosis||'—')+'</td><td>'+esc(x.via||'—')+'</td><td>'+esc(x.frecuencia||'—')+'</td><td>'+esc(x.duracion||'—')+'</td></tr>';
+  var scHTML=sc.map(x=>'<li>'+esc(x)+'</li>').join('');
+  var msHTML=ms.map(x=>'<li>'+esc(x)+'</li>').join('');
+
+  //  PROTOCOLO (IMPORTANTE)
+  var fasesH=proto.map(function(f){
+    var farmacos=Array.isArray(f.farmacos)?f.farmacos:[];
+
+    var fH=farmacos.map(function(x){
+      return '<tr>'+
+        '<td>'+esc(x.nombre||'—')+'</td>'+
+        '<td>'+esc(x.dosis||'—')+'</td>'+
+        '<td>'+esc(x.via||'—')+'</td>'+
+        '<td>'+esc(x.frecuencia||'—')+'</td>'+
+        '<td>'+esc(x.duracion||'—')+'</td>'+
+      '</tr>';
     }).join('');
 
     return '<div style="margin-bottom:14px">'+
-      '<div style="font-weight:700;color:var(--blue);margin-bottom:6px">'+esc(f.fase||'')+'</div>'+
-      '<div style="font-size:.82rem;color:var(--soft);margin-bottom:7px"><strong>Objetivo:</strong> '+esc(f.objetivo||'')+'</div>'+
-      '<table class="dtbl"><thead><tr><th>Fármaco</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+fH+'</tbody></table>'+
+      '<div style="font-weight:700;color:var(--blue);margin-bottom:6px">'+esc(f.fase||'Fase')+'</div>'+
+      '<div style="font-size:.82rem;color:var(--soft);margin-bottom:7px"><strong>Objetivo:</strong> '+esc(f.objetivo||'—')+'</div>'+
+      (fH?'<table class="dtbl"><thead><tr><th>Fármaco</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+fH+'</tbody></table>':'<p>Sin fármacos especificados</p>')+
     '</div>';
   }).join('');
 
@@ -1509,24 +1528,25 @@ function renderEnfAI(data,q){
     '</div>'+
 
     '<div class="aibody">'+
+
       '<div class="a2col">'+
         '<div class="aisec"><h3>Diagnóstico</h3><p>'+esc(data.diagnostico||'—')+'</p></div>'+
         '<div class="aisec b"><h3>Etiopatogenia</h3><p>'+esc(data.etiopatogenia||'—')+'</p></div>'+
       '</div>'+
 
-      '<div class="aisec"><h3>Signos Clínicos</h3><ul>'+(sc||'<li>—</li>')+'</ul></div>'+
+      '<div class="aisec"><h3>Signos Clínicos</h3><ul>'+(scHTML||'<li>—</li>')+'</ul></div>'+
 
-      (fasesH?'<div class="aisec"><h3>Tratamiento</h3>'+fasesH+'</div>':'')+
+      '<div class="aisec"><h3>Protocolo de Tratamiento</h3>'+(fasesH||'<p>No disponible</p>')+'</div>'+
 
       '<div class="a2col">'+
-        '<div class="aisec g"><h3>Soporte</h3><ul>'+(ms||'<li>—</li>')+'</ul></div>'+
+        '<div class="aisec g"><h3>Medidas de Soporte</h3><ul>'+(msHTML||'<li>—</li>')+'</ul></div>'+
         '<div class="aisec o"><h3>Pronóstico</h3><p>'+esc(data.pronostico||'—')+'</p><br><p><strong>Prevención:</strong> '+esc(data.prevencion||'—')+'</p></div>'+
       '</div>'+
+
     '</div>'+
   '</div>';
 
-  var c=gid('eic');
-  if(c)c.addEventListener('click',function(){gid('edet').innerHTML='';});
+  bindEnfClose();
 }
 
 async function searchEnf(){
@@ -1534,17 +1554,18 @@ async function searchEnf(){
   if(!q||loadingEnf)return;
 
   loadingEnf=true;
-  gid('btnEnfSearch').disabled=true;
-  gid('btnEnfSearch').textContent='Consultando...';
+  var btn=gid('btnEnfSearch');
+  btn.disabled=true;
+  btn.textContent='Consultando...';
 
   showEnfLoading();
 
   var prompt=[
     'Eres veterinario clínico. Busca: '+q+'.',
-    'Responde SOLO con JSON compacto:',
+    'Responde SOLO con JSON:',
     '{"encontrado":true,"diagnostico":"","etiopatogenia":"","signosClinicos":["","",""],"protocolo":[{"fase":"","farmacos":[{"nombre":"","dosis":"","via":"","frecuencia":"","duracion":""}],"objetivo":""}],"medidasSoporte":["",""],"pronostico":"","prevencion":""}',
     'Si no es enfermedad: {"encontrado":false,"mensaje":""}',
-    'SOLO JSON.'
+    'SOLO JSON'
   ].join(' ');
 
   try{
@@ -1557,6 +1578,7 @@ async function searchEnf(){
 
     var parsed=safeJSON(raw);
 
+    // fallback igual que tu atlas
     if(!parsed){
       var m=raw.match(/\{[\s\S]*"encontrado"[\s\S]*\}/);
       if(m) parsed=safeJSON(m[0]);
@@ -1580,8 +1602,8 @@ async function searchEnf(){
   }
   finally{
     loadingEnf=false;
-    gid('btnEnfSearch').disabled=false;
-    gid('btnEnfSearch').textContent='Buscar con IA';
+    btn.disabled=false;
+    btn.textContent='Buscar con IA';
   }
 }
 /* ═══════════════════ CHAT ═══════════════════ */
