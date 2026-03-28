@@ -1228,9 +1228,7 @@ async function claudeWithDocs(textPrompt,docs,tokens){
         var bytes=new Uint8Array(decoded.length);
         for(var i=0;i<decoded.length;i++)bytes[i]=decoded.charCodeAt(i);
         var text=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
-        content.push({type:'text',text:'Archivo: '+doc.name+'
-
-'+text});
+        content.push({type:'text',text:'Archivo: '+doc.name+'\n\n'+text});
       }catch(e){
         content.push({type:'text',text:'Archivo: '+doc.name+' (no se pudo decodificar)'});
       }
@@ -1818,14 +1816,8 @@ async function genResumen(){
     }
     // Clean any leftover note/disclaimer lines Claude adds
     var cleaned=raw.trim()
-      .replace(/NOTA IMPORTANTE:.*?(?=
-
-|
-[A-ZÁÉÍÓÚ]|$)/gs,'')
-      .replace(/
-{3,}/g,'
-
-')
+      .replace(/NOTA IMPORTANTE:[\s\S]*?(?=\n\n|\n[A-ZÁÉÍÓÚ]|$)/g,'')
+      .replace(/\n{3,}/g,'\n\n')
       .trim();
     resDiv.textContent=cleaned||raw.trim();
   }catch(e){
