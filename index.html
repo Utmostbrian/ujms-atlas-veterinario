@@ -762,8 +762,8 @@ body.printing > *:not(#printarea){pointer-events:none}
     </div>
     <div class="rfile" style="margin-top:12px;margin-bottom:12px">
       <label for="rfile" style="font-size:.83rem;color:var(--soft);display:block;margin-bottom:6px">Opcional: sube un archivo con texto para resumir (txt, md, html, pdf, doc, docx)</label>
-      <input type="file" id="rfile" accept=".txt,.md,.html,.pdf,.doc,.docx" multiple style="width:100%">
-      <div style="font-size:.78rem;color:var(--soft);margin-top:4px">Se intentará extraer y resumir el contenido del archivo cargado.</div>
+      <input type="file" id="rfile" accept=".txt,.md,.html,.pdf,.docx" multiple style="width:100%">
+      <div style="font-size:.78rem;color:var(--soft);margin-top:4px">Soporta .txt, .md, .html, .pdf, .docx — la IA leerá el contenido directamente del archivo.</div>
     </div>
     <div class="rres" id="rres">El resumen aparecerá aquí...</div>
   </div>
@@ -1189,36 +1189,58 @@ function showEnfFallback(e,title,subtitle){
   gid('edet').scrollIntoView({behavior:'smooth'});
   var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
 }
-function readFileText(file){
+function readFileAsBase64(file){
   return new Promise(function(resolve,reject){
     var r=new FileReader();
-    var name=file.name||'';
-    var lower=name.toLowerCase();
-    if(file.type.startsWith('text/')||/\.(txt|md|html?)$/i.test(lower)){
-      r.onload=function(){resolve(String(r.result||''));};
-      r.onerror=function(){reject(new Error('No se pudo leer el archivo.'))};
-      r.readAsText(file,'utf-8');
-      return;
-    }
-    // Para otros formatos intentamos decodificar bytes a texto
     r.onload=function(){
-      try{
-        var bytes=new Uint8Array(r.result);
-        var text=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
-        // Para .docx: intentar extraer XML con etiquetas w:t
-        if(text.includes('<w:t')){
-          var matches=text.match(/<w:t[^>]*>([^<]*)<\/w:t>/g)||[];
-          if(matches.length>0){
-            var docText=matches.map(function(m){return m.replace(/<w:t[^>]*>|<\/w:t>/g,'')}).join(' ').trim();
-            if(docText.length>30)return resolve(docText);
-          }
-        }
-        if(text.trim())resolve(text);
-        else reject(new Error('No se pudo extraer texto del archivo (formato no compatible).'));
-      }catch(ex){reject(new Error('No se pudo extraer texto del archivo.'))}
+      var b64=r.result.split(',')[1];
+      resolve({name:file.name,type:file.type,b64:b64,size:file.size});
     };
-    r.onerror=function(){reject(new Error('No se pudo leer el archivo.'))};
-    r.readAsArrayBuffer(file);
+    r.onerror=function(){reject(new Error('No se pudo leer el archivo'))};
+    r.readAsDataURL(file);
+  });
+}
+
+function getMediaType(file){
+  var name=(file.name||'').toLowerCase();
+  var t=file.type||'';
+  if(t==='application/pdf'||name.endsWith('.pdf'))return'application/pdf';
+  if(t.includes('word')||name.endsWith('.docx')||name.endsWith('.doc'))return'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if(t.startsWith('text/')||name.endsWith('.txt')||name.endsWith('.md'))return'text/plain';
+  if(name.endsWith('.html')||name.endsWith('.htm'))return'text/html';
+  return'text/plain';
+}
+
+async function claudeWithDocs(textPrompt,docs,tokens){
+  // Build content array: docs first, then text
+  var content=[];
+  docs.forEach(function(doc){
+    var mtype=doc.mtype||'text/plain';
+    if(mtype==='application/pdf'){
+      content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:doc.b64}});
+    } else if(mtype.includes('wordprocessingml')){
+      // For docx: send as base64 document
+      content.push({type:'document',source:{type:'base64',media_type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',data:doc.b64}});
+    } else {
+      // For text files: decode and send inline
+      try{
+        var decoded=atob(doc.b64);
+        var bytes=new Uint8Array(decoded.length);
+        for(var i=0;i<decoded.length;i++)bytes[i]=decoded.charCodeAt(i);
+        var text=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+        content.push({type:'text',text:'Archivo: '+doc.name+'
+
+'+text});
+      }catch(e){
+        content.push({type:'text',text:'Archivo: '+doc.name+' (no se pudo decodificar)'});
+      }
+    }
+  });
+  content.push({type:'text',text:textPrompt});
+  return callAPI({
+    model:'claude-sonnet-4-6',
+    max_tokens:tokens||2000,
+    messages:[{role:'user',content:content}]
   });
 }
 /* ═══════════════════ CLAUDE API ═══════════════════ */
@@ -1738,55 +1760,80 @@ function buildAlpha(){
 async function genResumen(){
   var cat=gid('rcat').value,tipo=gid('rtipo').value;
   var btn=gid('bres');btn.disabled=true;btn.textContent='Generando...';
-  gid('rres').textContent='Generando resumen con IA...';
+  var resDiv=gid('rres');
+  resDiv.textContent='Procesando...';
 
   var archivo=gid('rfile');
-  var fileContent='';
+  var docs=[];
+
+  // ── Load files as base64 ──
   if(archivo&&archivo.files&&archivo.files.length>0){
-    try{
-      var walls=[];
-      for(var i=0;i<archivo.files.length;i++){
-        var f=archivo.files[i];
-        var t=await readFileText(f);
-        if(t&&t.trim())walls.push('===== '+f.name+' =====\n'+t.trim());
+    resDiv.textContent='Leyendo archivos ('+archivo.files.length+')...';
+    for(var i=0;i<archivo.files.length;i++){
+      var f=archivo.files[i];
+      try{
+        var d=await readFileAsBase64(f);
+        d.mtype=getMediaType(f);
+        docs.push(d);
+      }catch(err){
+        resDiv.textContent='Error al leer '+f.name+': '+err.message;
+        btn.disabled=false;btn.textContent='Generar con IA';
+        return;
       }
-      if(walls.length>0){
-        fileContent=walls.join('\n\n');
-        if(fileContent.length>16000)fileContent=fileContent.slice(0,16000)+'\n\n[...texto truncado por límite...]';
-      }
-    }catch(err){
-      gid('rres').textContent='Error al leer archivo: '+(err.message||'intenta con otro archivo');
-      btn.disabled=false;btn.textContent='Generar con IA';
-      return;
     }
   }
 
   var farmacos=(cat==='todos'?DRUGS:DRUGS.filter(function(d){return d.cat===cat})).map(function(d){return d.n}).join(', ');
-  var tipoDesc={tabla:'tabla comparativa con columnas: Fármaco, Categoría, Mecanismo de acción, Dosis clave, Especie principal, Contraindicación principal',mecanismos:'descripción del mecanismo de acción de cada fármaco, organizado y claro',dosis:'tabla de dosis rápidas por especie y vía de administración para cada fármaco',contraindicaciones:'lista de contraindicaciones y advertencias de seguridad más importantes de cada fármaco'};
+  var tipoDesc={
+    tabla:'tabla comparativa con columnas: Fármaco, Categoría, Mecanismo de acción, Dosis clave, Especie principal, Contraindicación principal',
+    mecanismos:'descripción del mecanismo de acción de cada fármaco, organizado y claro',
+    dosis:'tabla de dosis rápidas por especie y vía de administración para cada fármaco',
+    contraindicaciones:'lista de contraindicaciones y advertencias de seguridad más importantes de cada fármaco'
+  };
 
-  var prompt='Farmacólogo veterinario docente universitario. '; 
-
-  if(fileContent){
-    prompt += 'Resume el siguiente contenido textual para que un estudiante pueda estudiar para el examen. '; 
-    prompt += 'Debes generar un resumen claro y organizado con puntos clave, definición de términos y acciones clínicas. '; 
-    prompt += 'Texto cargado:\n'+fileContent+'\n\n';
-    prompt += 'Adicionalmente, incluye una breve guía de estudio basada en la categoría "'+cat+'" y el tipo "'+tipo+'". ';
+  var prompt;
+  if(docs.length>0){
+    var names=docs.map(function(d){return d.name}).join(', ');
+    resDiv.textContent='Analizando '+names+' con IA...';
+    prompt='Eres un docente universitario de farmacología veterinaria. '+
+      'Analiza el contenido del archivo adjunto y genera un resumen de estudio completo. '+
+      'El resumen debe estar en formato: '+tipoDesc[tipo]+'. '+
+      'Organiza el contenido de forma clara para que un estudiante pueda prepararse para un examen. '+
+      'Usa texto plano bien formateado con guiones y tabulación. Sin markdown, sin asteriscos. Máximo 1600 palabras.';
   } else {
-    prompt += 'Genera un resumen de estudio en formato: '+tipoDesc[tipo]+' para los siguientes fármacos veterinarios: '+farmacos+'. ';
+    resDiv.textContent='Generando resumen con IA...';
+    prompt='Farmacólogo veterinario docente universitario. '+
+      'Genera un resumen de estudio en formato: '+tipoDesc[tipo]+
+      ' para los siguientes fármacos veterinarios: '+farmacos+'. '+
+      'El resumen debe ser claro, bien organizado y útil para examen universitario. '+
+      'Responde en texto plano bien formateado con guiones y tabulación. Sin markdown, sin asteriscos. Máximo 1400 palabras.';
   }
 
-  prompt += 'El resumen debe ser claro, bien organizado y útil para examen universitario. Responde en texto plano bien formateado con alineación usando guiones y tabulación. Sin markdown, sin asteriscos. Máximo 1400 palabras.';
-
   try{
-    var raw=await claude(prompt,1800);
-    gid('rres').textContent=raw.trim();
+    var raw;
+    if(docs.length>0){
+      raw=await claudeWithDocs(prompt,docs,2000);
+    } else {
+      raw=await claude(prompt,1800);
+    }
+    // Clean any leftover note/disclaimer lines Claude adds
+    var cleaned=raw.trim()
+      .replace(/NOTA IMPORTANTE:.*?(?=
+
+|
+[A-ZÁÉÍÓÚ]|$)/gs,'')
+      .replace(/
+{3,}/g,'
+
+')
+      .trim();
+    resDiv.textContent=cleaned||raw.trim();
   }catch(e){
-    gid('rres').textContent='Error de conexión. Intenta de nuevo.';
+    resDiv.textContent='Error de conexión: '+e.message+'. Intenta de nuevo.';
   }finally{
     btn.disabled=false;btn.textContent='Generar con IA';
   }
 }
-
 /* ═══════════════════ INIT & EVENT LISTENERS ═══════════════════ */
 document.addEventListener('DOMContentLoaded',function(){
 
