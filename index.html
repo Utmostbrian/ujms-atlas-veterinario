@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -247,7 +247,45 @@ body.dark #chsend{background:var(--blue)}
 body.dark #chsend:hover{background:var(--blue-mid)}
 body.dark .sbar{background:#2a2a3e;border-color:#444}
 body.dark .slbl2{color:#fff}
-body.dark .srow{color:#ddd}
+.srow{display:flex;gap:9px}
+
+/* SVG ICON STYLES */
+.nav-icon {
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: text-bottom;
+  margin-right: 7px;
+  opacity: 0.9;
+  transition: opacity 0.2s, transform 0.2s;
+  display: inline-block;
+}
+button:hover .nav-icon, button.on .nav-icon, .mobpanel button:hover .nav-icon {
+  opacity: 1;
+  transform: scale(1.05);
+}
+button.tbtn .nav-icon {
+  margin-right: 5px;
+}
+.about-card-icon .nav-icon, .ch .nav-icon, .vac-ch .nav-icon {
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.about-card-icon .nav-icon {
+  width: 1.6em;
+  height: 1.6em;
+  margin-right: 0;
+  opacity: 1;
+}
+body.dark .nav-icon {
+  stroke: currentColor;
+}
 /* LOADING */
 .ld{display:flex;align-items:center;justify-content:center;padding:48px 20px;flex-direction:column;gap:12px}
 .sp{width:38px;height:38px;border:4px solid var(--gl);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
@@ -502,11 +540,11 @@ body.printing > *:not(#printarea){pointer-events:none}
       <span class="badge">Carrera de Veterinaria</span>
     </div>
     <nav class="hnav">
-      <button data-goto="atlas">Atlas</button>
-      <button data-goto="calc">Calculadora</button>
-      <button data-goto="chat">Chat IA</button>
-      <button data-goto="quiz">Quiz</button>
-      <button data-goto="glos">Glosario</button>
+      <button data-goto="atlas"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Atlas</button>
+      <button data-goto="calc"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> Calculadora</button>
+      <button data-goto="chat"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="8" rx="2"/><path d="M12 5a3 3 0 1 0-3 3"/><line x1="9" y1="18" x2="9" y2="18"/><line x1="15" y1="18" x2="15" y2="18"/></svg> Chat IA</button>
+      <button data-goto="quiz"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Quiz</button>
+      <button data-goto="glos"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg> Glosario</button>
     </nav>
     <button id="darkToggle" title="Modo oscuro" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 8px;line-height:1;opacity:.85;transition:.2s" aria-label="Modo oscuro">&#9790;</button>
     <button class="hburger" id="burger">&#9776;</button>
@@ -515,20 +553,20 @@ body.printing > *:not(#printarea){pointer-events:none}
 
 <div class="mobnav" id="mobnav">
   <div class="mobpanel">
-    <button data-goto="atlas">&#128218; Atlas Farmacológico</button>
-    <button data-goto="calc">&#9878; Calculadora de Dosis</button>
-    <button data-goto="dil">&#128167; Diluciones IV</button>
-    <button data-goto="inter">&#9888; Interacciones</button>
-    <button data-goto="comp">&#9878; Comparador</button>
-    <button data-goto="enf">&#128138; Enfermedades</button>
-    <button data-goto="chat">&#129302; Chat Farmacológico</button>
-    <button data-goto="quiz">&#10067; Quiz de Estudio</button>
-    <button data-goto="glos">&#128218; Glosario</button>
-    <button data-goto="res">&#128196; Resumen Examen</button>
-    <button data-goto="receta">&#128203; Receta Veterinaria</button>
-    <button data-goto="vacunas">&#128137; Vacunas y Recordatorios</button>
-    <button data-goto="about">&#127979; Acerca de</button>
-    <button class="mobclose" id="mobclose">&#10005; Cerrar</button>
+    <button data-goto="atlas"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Atlas Farmacológico</button>
+    <button data-goto="calc"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> Calculadora de Dosis</button>
+    <button data-goto="dil"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Diluciones IV</button>
+    <button data-goto="inter"><svg class="nav-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Interacciones</button>
+    <button data-goto="comp"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg> Comparador</button>
+    <button data-goto="enf"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Enfermedades</button>
+    <button data-goto="chat"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="8" rx="2"/><path d="M12 5a3 3 0 1 0-3 3"/><line x1="9" y1="18" x2="9" y2="18"/><line x1="15" y1="18" x2="15" y2="18"/></svg> Chat Farmacológico</button>
+    <button data-goto="quiz"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Quiz de Estudio</button>
+    <button data-goto="glos"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg> Glosario</button>
+    <button data-goto="res"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" y1="9" x2="8" y2="9"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Resumen Examen</button>
+    <button data-goto="receta"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 12h4"/><path d="M2 18h4"/><path d="m21.38 5.63-8.6 8.6a2 2 0 0 1-1.39.58H8.5v-2.89c0-.53.21-1.04.59-1.4l8.59-8.59a2.83 2.83 0 1 1 4 4z"/></svg> Receta Veterinaria</button>
+    <button data-goto="vacunas"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg> Vacunas y Recordatorios</button>
+    <button data-goto="about"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Acerca de</button>
+    <button class="mobclose" id="mobclose">Cerrar</button>
   </div>
 </div>
 
@@ -548,19 +586,19 @@ body.printing > *:not(#printarea){pointer-events:none}
 
 <div class="tabbar">
   <div class="tabinner">
-    <button class="tbtn on" data-tab="atlas">&#128218; Atlas</button>
-    <button class="tbtn" data-tab="calc">&#9878; Calculadora</button>
-    <button class="tbtn" data-tab="dil">&#128167; Diluciones</button>
-    <button class="tbtn" data-tab="inter">&#9888; Interacciones</button>
-    <button class="tbtn" data-tab="comp">Comparador</button>
-    <button class="tbtn" data-tab="enf">&#128138; Enfermedades</button>
-    <button class="tbtn" data-tab="chat">&#129302; Chat IA</button>
-    <button class="tbtn" data-tab="quiz">&#10067; Quiz</button>
-    <button class="tbtn" data-tab="glos">&#128218; Glosario</button>
-    <button class="tbtn" data-tab="res">&#128196; Resumen</button>
-    <button class="tbtn" data-tab="receta">&#128203; Receta</button>
-    <button class="tbtn" data-tab="vacunas">&#128137; Vacunas</button>
-    <button class="tbtn" data-tab="about">&#127979; Acerca de</button>
+    <button class="tbtn on" data-tab="atlas"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Atlas</button>
+    <button class="tbtn" data-tab="calc"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> Calculadora</button>
+    <button class="tbtn" data-tab="dil"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Diluciones</button>
+    <button class="tbtn" data-tab="inter"><svg class="nav-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Interacciones</button>
+    <button class="tbtn" data-tab="comp"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg> Comparador</button>
+    <button class="tbtn" data-tab="enf"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Enfermedades</button>
+    <button class="tbtn" data-tab="chat"><svg class="nav-icon" viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="8" rx="2"/><path d="M12 5a3 3 0 1 0-3 3"/><line x1="9" y1="18" x2="9" y2="18"/><line x1="15" y1="18" x2="15" y2="18"/></svg> Chat IA</button>
+    <button class="tbtn" data-tab="quiz"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Quiz</button>
+    <button class="tbtn" data-tab="glos"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg> Glosario</button>
+    <button class="tbtn" data-tab="res"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" y1="9" x2="8" y2="9"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Resumen</button>
+    <button class="tbtn" data-tab="receta"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 12h4"/><path d="M2 18h4"/><path d="m21.38 5.63-8.6 8.6a2 2 0 0 1-1.39.58H8.5v-2.89c0-.53.21-1.04.59-1.4l8.59-8.59a2.83 2.83 0 1 1 4 4z"/></svg> Receta</button>
+    <button class="tbtn" data-tab="vacunas"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg> Vacunas</button>
+    <button class="tbtn" data-tab="about"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Acerca de</button>
   </div>
 </div>
 
@@ -595,7 +633,7 @@ body.printing > *:not(#printarea){pointer-events:none}
       <div class="sbar">
         <div class="slbl2">Buscar fármaco veterinario</div>
         <div class="srow">
-          <div class="swrap"><span class="sic">&#128269;</span><input type="text" id="si" placeholder="Ej: amoxicilina, ivermectina, ketamina, meloxicam..."></div>
+          <div class="swrap"><svg class="nav-icon sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="si" placeholder="Ej: amoxicilina, ivermectina, ketamina, meloxicam..."></div>
           <button id="sb">Consultar con IA</button>
         </div>
         <div class="chips" id="chips">
@@ -620,7 +658,7 @@ body.printing > *:not(#printarea){pointer-events:none}
   <div class="shdr"><h2 class="stitle">Calculadora de Dosis</h2></div>
   <div class="cgrid">
     <div class="card2">
-      <div class="ch">&#9878; Datos del Paciente y Fármaco</div>
+      <div class="ch">Datos del Paciente y Fármaco</div>
       <div class="cb">
         <div class="fgrp"><label class="flbl">Fármaco</label><input class="fc" id="cdrug" placeholder="Ej: Amoxicilina, Ivermectina..."></div>
         <div class="frow">
@@ -637,7 +675,7 @@ body.printing > *:not(#printarea){pointer-events:none}
       </div>
     </div>
     <div class="card2">
-      <div class="ch red">&#128203; Historial</div>
+      <div class="ch red"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" y1="9" x2="8" y2="9"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Historial</div>
       <div class="cb" id="chist"><p style="font-style:italic;color:var(--soft)">Los cálculos aparecerán aquí...</p></div>
     </div>
   </div>
@@ -648,7 +686,7 @@ body.printing > *:not(#printarea){pointer-events:none}
   <div class="shdr"><h2 class="stitle">Calculadora de Diluciones y Goteo IV</h2></div>
   <div class="cgrid">
     <div class="card2">
-      <div class="ch">&#128167; Dilución (C1V1 = C2V2)</div>
+      <div class="ch">Dilución (C1V1 = C2V2)</div>
       <div class="cb">
         <div class="fgrp"><label class="flbl">Concentración inicial C1 (mg/mL)</label><input class="fc" id="dc1" type="number" placeholder="100"></div>
         <div class="fgrp"><label class="flbl">Concentración final C2 (mg/mL)</label><input class="fc" id="dc2" type="number" placeholder="10"></div>
@@ -658,7 +696,7 @@ body.printing > *:not(#printarea){pointer-events:none}
       </div>
     </div>
     <div class="card2">
-      <div class="ch">&#128203; Goteo IV</div>
+      <div class="ch"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Goteo IV</div>
       <div class="cb">
         <div class="fgrp"><label class="flbl">Volumen total (mL)</label><input class="fc" id="gvol" type="number" placeholder="500"></div>
         <div class="fgrp"><label class="flbl">Tiempo de infusión (horas)</label><input class="fc" id="gtime" type="number" step="0.5" placeholder="4"></div>
@@ -702,7 +740,7 @@ body.printing > *:not(#printarea){pointer-events:none}
   <div class="sbar" style="margin-bottom:18px">
     <div class="slbl2">Buscar cualquier enfermedad veterinaria</div>
     <div class="srow">
-      <div class="swrap"><span class="sic">&#128269;</span><input type="text" id="enfSearch" placeholder="Ej: mastitis, parvovirus, brucelosis, moquillo..."></div>
+      <div class="swrap"><svg class="nav-icon sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="enfSearch" placeholder="Ej: mastitis, parvovirus, brucelosis, moquillo..."></div>
       <button id="btnEnfSearch">Buscar con IA</button>
     </div>
     <div style="margin-top:9px;font-size:.8rem;color:var(--soft)">O selecciona una de las enfermedades frecuentes del catálogo:</div>
@@ -716,7 +754,7 @@ body.printing > *:not(#printarea){pointer-events:none}
   <div class="shdr"><h2 class="stitle">Chat Farmacológico con IA</h2></div>
   <div class="cwrap">
     <div class="cmsgs" id="cmsgs">
-      <div class="cmsg a"><div class="cbub">&#128075; Hola! Soy el asistente farmacológico de la UJMS.<br><br>Puedo ayudarte con:<br>• Tratamientos para enfermedades<br>• Combinaciones de fármacos<br>• Dosis y vías de administración<br>• Alternativas terapéuticas<br><br>¿En qué te ayudo?</div><div class="ctime">Asistente UJMS</div></div>
+      <div class="cmsg a"><div class="cbub">Hola! Soy el asistente farmacológico de la UJMS.<br><br>Puedo ayudarte con:<br>• Tratamientos para enfermedades<br>• Combinaciones de fármacos<br>• Dosis y vías de administración<br>• Alternativas terapéuticas<br><br>¿En qué te ayudo?</div><div class="ctime">Asistente UJMS</div></div>
     </div>
     <div class="cinput"><input type="text" id="chi" placeholder="Pregunta sobre farmacología veterinaria..."><button id="chsend">Enviar</button></div>
   </div>
@@ -745,7 +783,7 @@ body.printing > *:not(#printarea){pointer-events:none}
 <!-- GLOSARIO -->
 <div class="tc" id="tc-glos">
   <div class="shdr"><h2 class="stitle">Glosario Farmacológico</h2></div>
-  <div class="gsearch"><input type="text" id="gsearch" placeholder="Buscar término..."></div>
+  <div class="gsearch"><svg class="nav-icon sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="gsearch" placeholder="Buscar término..."></div>
   <div class="galpha" id="galpha"></div>
   <div class="glist" id="glist"></div>
 </div>
@@ -819,9 +857,9 @@ body.printing > *:not(#printarea){pointer-events:none}
           </div>
         </div>
         <div style="display:flex;gap:11px;flex-wrap:wrap">
-          <button class="btnp" id="btnPreviewRx" style="width:auto;padding:11px 22px">&#128065; Vista previa</button>
-          <button class="btnp" id="btnPrintRx" style="width:auto;padding:11px 22px;background:var(--red)">&#128438; Imprimir / PDF</button>
-          <button class="btnp" id="btnClearRx" style="width:auto;padding:11px 22px;background:var(--gray)">&#128465; Limpiar</button>
+          <button class="btnp" id="btnPreviewRx" style="width:auto;padding:11px 22px">Vista previa</button>
+          <button class="btnp" id="btnPrintRx" style="width:auto;padding:11px 22px;background:var(--red)">Imprimir / PDF</button>
+          <button class="btnp" id="btnClearRx" style="width:auto;padding:11px 22px;background:var(--gray)">Limpiar</button>
         </div>
       </div>
     </div>
@@ -835,7 +873,7 @@ body.printing > *:not(#printarea){pointer-events:none}
   <div class="shdr"><h2 class="stitle">Vacunas y Recordatorios</h2><span class="scnt" id="vacCount">0 registros</span></div>
   <div class="vac-wrap">
     <div class="vac-card">
-      <div class="vac-ch">&#128137; Registrar Vacuna / Tratamiento</div>
+      <div class="vac-ch"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg> Registrar Vacuna / Tratamiento</div>
       <div class="vac-body">
         <div class="fgrp"><label class="flbl">Nombre del paciente (animal)</label><input class="fc" id="vac-pac" placeholder="Ej: Max (Perro - Golden Retriever)"></div>
         <div class="fgrp"><label class="flbl">Propietario</label><input class="fc" id="vac-owner" placeholder="Nombre del dueño"></div>
@@ -859,12 +897,12 @@ body.printing > *:not(#printarea){pointer-events:none}
       </div>
     </div>
     <div class="vac-card">
-      <div class="vac-ch green">&#128197; Próximos Recordatorios</div>
+      <div class="vac-ch green">Próximos Recordatorios</div>
       <div class="vac-body" id="vacReminders"><div class="empty-vac">No hay recordatorios próximos</div></div>
     </div>
   </div>
   <div class="vac-card" style="margin-top:18px">
-    <div class="vac-ch red">&#128203; Historial de Registros</div>
+    <div class="vac-ch red"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" y1="9" x2="8" y2="9"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Historial de Registros</div>
     <div class="vac-body" id="vacHistorial"><div class="empty-vac">No hay registros guardados</div></div>
   </div>
 </div>
@@ -882,48 +920,42 @@ body.printing > *:not(#printarea){pointer-events:none}
   </div>
   <div class="about-grid">
     <div class="about-card">
-      <div class="about-card-icon">&#128218;</div>
-      <h3>Sobre el Proyecto</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>       <h3>Sobre el Proyecto</h3>
       <p>Herramienta de referencia clínica y educativa que combina un catálogo farmacológico base con Inteligencia Artificial para consultar información de cualquier fármaco veterinario en tiempo real.</p>
     </div>
     <div class="about-card">
-      <div class="about-card-icon">&#129302;</div>
-      <h3>Tecnología IA</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L11.5 8.5L17 10L11.5 11.5L10 17L8.5 11.5L3 10L8.5 8.5L10 3Z"/><path d="M19 15L19.5 17.5L22 18L19.5 18.5L19 21L18.5 18.5L16 18L18.5 17.5L19 15Z"/></svg></div><h3>Tecnología IA</h3>
       <p>Powered by <strong>Claude Sonnet 4</strong> de Anthropic — uno de los modelos de lenguaje más avanzados del mundo, especializado para consultas farmacológicas veterinarias.</p>
     </div>
     <div class="about-card">
-      <div class="about-card-icon">&#128202;</div>
-      <h3>Herramientas</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></div>       <h3>Herramientas</h3>
       <p>10 módulos integrados: Atlas IA, Calculadora de dosis, Diluciones IV, Interacciones, Comparador, Protocolos por enfermedad, Chat IA, Quiz, Glosario y Resumen de estudio.</p>
     </div>
     <div class="about-card">
-      <div class="about-card-icon">&#127979;</div>
-      <h3>Universidad</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>       <h3>Universidad</h3>
       <p><strong>UJMS — Sede Villa Montes</strong><br>Carrera de Medicina Veterinaria y Zootecnia<br>Tarija, Bolivia · 2026<br><em>Sapientia et Iustitia Immortales Sunt</em></p>
     </div>
     <div class="about-card">
-      <div class="about-card-icon">&#9888;</div>
-      <h3>Aviso Académico</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div><h3>Aviso Académico</h3>
       <p>La información presentada es de carácter educativo y orientativo. Siempre verificar con el vademécum oficial y aplicar criterio clínico bajo supervisión profesional.</p>
     </div>
     <div class="about-card">
-      <div class="about-card-icon">&#128187;</div>
-      <h3>Tecnologías</h3>
+      <div class="about-card-icon"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><h3>Tecnologías</h3>
       <p>HTML5 · CSS3 · JavaScript · Claude API (Anthropic) · Cloudflare Workers · Vercel · GitHub<br><br>Diseñado para funcionar en cualquier dispositivo sin instalación.</p>
     </div>
   </div>
   <div class="about-roadmap">
-    <h3>&#128640; Roadmap — Visión a Futuro</h3>
+    <h3>Roadmap — Visión a Futuro</h3>
     <div class="roadmap-item">
-      <div class="road-dot done">&#10003;</div>
+      <div class="road-dot done"></div>
       <div class="road-info"><h4>Atlas Farmacológico con IA <span class="road-tag done">Completado</span></h4><p>Búsqueda ilimitada de fármacos, calculadoras, interacciones, comparador, chat, quiz y glosario.</p></div>
     </div>
     <div class="roadmap-item">
-      <div class="road-dot done">&#10003;</div>
+      <div class="road-dot done"></div>
       <div class="road-info"><h4>Receta Veterinaria Digital <span class="road-tag done">Completado</span></h4><p>Generación e impresión de recetas médicas veterinarias con membrete institucional.</p></div>
     </div>
     <div class="roadmap-item">
-      <div class="road-dot done">&#10003;</div>
+      <div class="road-dot done"></div>
       <div class="road-info"><h4>Vacunas y Recordatorios <span class="road-tag done">Completado</span></h4><p>Registro de vacunas, desparasitaciones y tratamientos con alertas de próxima dosis.</p></div>
     </div>
     <div class="roadmap-item">
@@ -1178,14 +1210,14 @@ function renderEnfs(filter){
 
 function showEnfRawResponse(e,title,raw){
   var content = esc(String(raw||'')).replace(/\n/g,'<br>');
-  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose">&#10005;</button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>'+esc(title)+'</h3><div style="white-space:pre-wrap;word-break:break-word;font-size:.85rem;color:var(--text);padding:10px;background:rgba(0,0,0,.05);border-radius:8px;line-height:1.45;">'+content+'</div></div><div class="aisec g"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div></div></div>';
+  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose"></button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>'+esc(title)+'</h3><div style="white-space:pre-wrap;word-break:break-word;font-size:.85rem;color:var(--text);padding:10px;background:rgba(0,0,0,.05);border-radius:8px;line-height:1.45;">'+content+'</div></div><div class="aisec g"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div></div></div>';
   gid('edet').scrollIntoView({behavior:'smooth'});
   var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
 }
 function showEnfFallback(e,title,subtitle){
   var fallbackList=Array.isArray(e.fs)?e.fs:[];
   var drugItems=renderFallbackDrugItems(fallbackList);
-  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose">&#10005;</button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div><div class="aisec g"><h3>'+esc(subtitle)+'</h3><ul>'+drugItems+'</ul></div></div></div>';
+  gid('edet').innerHTML='<div class="aip"><div class="aiph" style="background:linear-gradient(135deg,'+(e.c||'#003087')+',#001f5c)"><button class="aiclose" id="edetclose"></button><div class="ainame">'+esc(e.n||'Enfermedad')+'</div><div class="ailat">'+esc(e.e||'Especies mixtas')+'</div></div><div class="aibody"><div class="aisec"><h3>Información local</h3><p>'+esc(e.d||'No hay descripción disponible.')+'</p></div><div class="aisec g"><h3>'+esc(subtitle)+'</h3><ul>'+drugItems+'</ul></div></div></div>';
   gid('edet').scrollIntoView({behavior:'smooth'});
   var ec=gid('edetclose');if(ec)ec.addEventListener('click',function(){gid('edet').innerHTML=''});
 }
@@ -1355,7 +1387,7 @@ function showLoading(){
 function renderAI(data,q){
   var aDiv=gid('airesult'),grid=gid('dgrid');
   if(!data||!data.encontrado){
-    aDiv.innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic">&#10005;</button><div class="ainame">Sin resultados</div><div class="ailat">"'+esc(q)+'"</div></div><div class="aibody"><div class="wbox"><span>&#9888;</span><span>'+esc((data&&data.mensaje)||'No se encontró información. Intenta con otro nombre.')+'</span></div></div></div>';
+    aDiv.innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic"></button><div class="ainame">Sin resultados</div><div class="ailat">"'+esc(q)+'"</div></div><div class="aibody"><div class="wbox"><span></span><span>'+esc((data&&data.mensaje)||'No se encontró información. Intenta con otro nombre.')+'</span></div></div></div>';
     renderCards();gid('ctitle').textContent='Catálogo de Fármacos';
     bindAIC();return;
   }
@@ -1363,7 +1395,7 @@ function renderAI(data,q){
   var ind=(data.indicaciones||[]).map(function(x){return'<li>'+esc(x)+'</li>'}).join('');
   var con=(data.contraindicaciones||[]).map(function(x){return'<li>'+esc(x)+'</li>'}).join('');
   var ef=(data.efectosAdversos||[]).map(function(x){return'<li>'+esc(x)+'</li>'}).join('');
-  aDiv.innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic">&#10005;</button><div class="ainame">'+esc(data.nombre||q)+'</div><div class="ailat">'+esc(data.nombreCientifico||'')+'</div><div class="aitags"><span class="aitag">'+esc(data.categoria||'')+'</span><span class="aitag">'+esc(data.viaAdministracion||'')+'</span><span class="aitag">'+esc(data.especiesIndicadas||'')+'</span><span class="aitag ia">IA</span></div></div><div class="aibody"><div class="a2col"><div class="aisec"><h3>Descripción</h3><p>'+esc(data.descripcion||'—')+'</p></div><div class="aisec b"><h3>Historia y Desarrollo</h3><p>'+esc(data.historia||'—')+'</p></div></div><div class="aisec"><h3>Mecanismo de Acción</h3><p>'+esc(data.mecanismoAccion||'—')+'</p></div><div class="a2col"><div class="aisec g"><h3>Indicaciones</h3><ul>'+(ind||'<li>—</li>')+'</ul></div><div class="aisec rr"><h3>Contraindicaciones</h3><ul>'+(con||'<li>—</li>')+'</ul></div></div>'+(ef?'<div class="aisec o"><h3>Efectos Adversos</h3><ul>'+ef+'</ul></div>':'')+(dRows?'<div class="aisec"><h3>Tabla de Dosis</h3><table class="dtbl"><thead><tr><th>Especie</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+dRows+'</tbody></table></div>':'')+(data.interacciones?'<div class="aisec"><h3>Interacciones</h3><p>'+esc(data.interacciones)+'</p></div>':'')+(data.periodoSupresion?'<div class="aisec"><h3>Período de Supresión</h3><p>'+esc(data.periodoSupresion)+'</p></div>':'')+(data.avisoClinico?'<div class="wbox"><span>&#9888;</span><span><strong>Aviso:</strong> '+esc(data.avisoClinico)+'</span></div>':'')+'</div></div>';
+  aDiv.innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic"></button><div class="ainame">'+esc(data.nombre||q)+'</div><div class="ailat">'+esc(data.nombreCientifico||'')+'</div><div class="aitags"><span class="aitag">'+esc(data.categoria||'')+'</span><span class="aitag">'+esc(data.viaAdministracion||'')+'</span><span class="aitag">'+esc(data.especiesIndicadas||'')+'</span><span class="aitag ia">IA</span></div></div><div class="aibody"><div class="a2col"><div class="aisec"><h3>Descripción</h3><p>'+esc(data.descripcion||'—')+'</p></div><div class="aisec b"><h3>Historia y Desarrollo</h3><p>'+esc(data.historia||'—')+'</p></div></div><div class="aisec"><h3>Mecanismo de Acción</h3><p>'+esc(data.mecanismoAccion||'—')+'</p></div><div class="a2col"><div class="aisec g"><h3>Indicaciones</h3><ul>'+(ind||'<li>—</li>')+'</ul></div><div class="aisec rr"><h3>Contraindicaciones</h3><ul>'+(con||'<li>—</li>')+'</ul></div></div>'+(ef?'<div class="aisec o"><h3>Efectos Adversos</h3><ul>'+ef+'</ul></div>':'')+(dRows?'<div class="aisec"><h3>Tabla de Dosis</h3><table class="dtbl"><thead><tr><th>Especie</th><th>Dosis</th><th>Vía</th><th>Frecuencia</th><th>Duración</th></tr></thead><tbody>'+dRows+'</tbody></table></div>':'')+(data.interacciones?'<div class="aisec"><h3>Interacciones</h3><p>'+esc(data.interacciones)+'</p></div>':'')+(data.periodoSupresion?'<div class="aisec"><h3>Período de Supresión</h3><p>'+esc(data.periodoSupresion)+'</p></div>':'')+(data.avisoClinico?'<div class="wbox"><span></span><span><strong>Aviso:</strong> '+esc(data.avisoClinico)+'</span></div>':'')+'</div></div>';
   gid('ctitle').textContent=data.nombre||q;
   gid('scnt').textContent='Resultado IA';
   bindAIC();
@@ -1416,7 +1448,7 @@ async function searchDrug(){
     renderAI(parsed,q);
   }catch(err){
     console.error('searchDrug error:',err);
-    gid('airesult').innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic">&#10005;</button><div class="ainame">Error de conexión</div></div><div class="aibody"><div class="wbox"><span>&#9888;</span><span>'+esc(err.message||'Error desconocido')+'</span></div></div></div>';
+    gid('airesult').innerHTML='<div class="aip"><div class="aiph"><button class="aiclose" id="aic"></button><div class="ainame">Error de conexión</div></div><div class="aibody"><div class="wbox"><span></span><span>'+esc(err.message||'Error desconocido')+'</span></div></div></div>';
     renderCards();bindAIC();
   }finally{
     loadingAtlas=false;gid('sb').disabled=false;gid('sb').textContent='Consultar con IA';
@@ -1443,11 +1475,11 @@ async function calcDosis(){
       if(d.frecuencia)html+='<div class="crow"><span>Frecuencia</span><span>'+esc(d.frecuencia)+'</span></div>';
       if(d.duracion)html+='<div class="crow"><span>Duración típica</span><span>'+esc(d.duracion)+'</span></div>';
       if(d.observacion)html+='<p style="margin-top:9px;font-size:.81rem;color:var(--soft)">'+esc(d.observacion)+'</p>';
-      if(d.advertencia)html+='<div class="wbox" style="margin-top:9px"><span>&#9888;</span><span>'+esc(d.advertencia)+'</span></div>';
+      if(d.advertencia)html+='<div class="wbox" style="margin-top:9px"><span></span><span>'+esc(d.advertencia)+'</span></div>';
       var cres=gid('cres');cres.innerHTML=html;cres.classList.add('show');
       chist.unshift({drug:drug,esp:esp,peso:peso,res:d,t:now()});renderHist();
-    }else{gid('cres').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se obtuvo resultado válido. Verifica los datos.</span></div>';gid('cres').classList.add('show')}
-  }catch(e){gid('cres').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión.</span></div>';gid('cres').classList.add('show')}
+    }else{gid('cres').innerHTML='<div class="wbox"><span></span><span>No se obtuvo resultado válido. Verifica los datos.</span></div>';gid('cres').classList.add('show')}
+  }catch(e){gid('cres').innerHTML='<div class="wbox"><span></span><span>Error de conexión.</span></div>';gid('cres').classList.add('show')}
   finally{btn.disabled=false;btn.textContent='Calcular dosis con IA'}
 }
 function renderHist(){
@@ -1479,7 +1511,7 @@ var idrugs=[];
 function renderIDrugs(){
   var l=gid('idlist');
   if(!idrugs.length){l.innerHTML='<span style="color:var(--gray);font-size:.81rem;font-style:italic">Agrega al menos 2 fármacos...</span>';gid('bcheck').disabled=true;return}
-  l.innerHTML=idrugs.map(function(d,i){return'<span class="idc">'+esc(d)+'<button data-ii="'+i+'">&#10005;</button></span>'}).join('');
+  l.innerHTML=idrugs.map(function(d,i){return'<span class="idc">'+esc(d)+'<button data-ii="'+i+'"></button></span>'}).join('');
   gid('bcheck').disabled=idrugs.length<2;
 }
 async function checkInter(){
@@ -1496,8 +1528,8 @@ async function checkInter(){
       (d.pares||[]).forEach(function(p){var tc2=p.tipo==='Peligrosa'?'#CC0000':p.tipo==='Sinérgica'?'#166534':'#F97316';html+='<div class="abox" style="background:'+nb+';border:1px solid '+nc+'30;margin-bottom:9px"><div style="font-weight:700;color:var(--dark);margin-bottom:3px">'+esc(p.farmaco1)+' + '+esc(p.farmaco2)+' <span style="color:'+tc2+';font-size:.77rem;font-weight:700">['+esc(p.tipo)+']</span></div><p style="font-size:.84rem;color:var(--text);margin-bottom:3px">'+esc(p.descripcion)+'</p><p style="font-size:.81rem;color:var(--soft)"><strong>Recomendación:</strong> '+esc(p.recomendacion)+'</p></div>'});
       html+='<div class="aisec"><h3>Conclusión</h3><p>'+esc(d.conclusion||'')+'</p></div></div></div>';
       gid('ires').innerHTML=html;
-    }else{gid('ires').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudo obtener análisis válido.</span></div>'}
-  }catch(e){gid('ires').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión.</span></div>'}
+    }else{gid('ires').innerHTML='<div class="wbox"><span></span><span>No se pudo obtener análisis válido.</span></div>'}
+  }catch(e){gid('ires').innerHTML='<div class="wbox"><span></span><span>Error de conexión.</span></div>'}
   finally{btn.disabled=idrugs.length<2;btn.textContent='Analizar interacciones con IA'}
 }
 
@@ -1515,8 +1547,8 @@ async function compFarmacos(){
       var rows=[['Categoría','categoria'],['Mecanismo','mecanismo'],['Espectro / Indicaciones','espectro'],['Especies','especie'],['Dosis típica','dosisTipica'],['Seguridad','seguridad'],['Gestación','gestacion'],['Período supresión','supresion'],['Costo relativo','costo']];
       var trs=rows.map(function(r){return'<tr><td>'+esc(r[0])+'</td><td>'+esc(d.f1[r[1]]||'—')+'</td><td>'+esc(d.f2[r[1]]||'—')+'</td></tr>'}).join('');
       gid('compres').innerHTML='<div class="ctw"><table class="ctbl"><thead><tr><th>Criterio</th><th>'+esc(d.f1.nombre||d1)+'</th><th>'+esc(d.f2.nombre||d2)+'</th></tr></thead><tbody>'+trs+'</tbody></table></div><div class="abox b" style="margin-top:14px;padding:14px"><h3 style="font-family:Playfair Display,serif;font-size:.92rem;color:var(--blue);margin-bottom:7px">Conclusión clínica</h3><p style="font-size:.85rem;color:var(--text)">'+esc(d.conclusion||'')+'</p></div>';
-    }else{gid('compres').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudo obtener comparación válida.</span></div>'}
-  }catch(e){gid('compres').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión.</span></div>'}
+    }else{gid('compres').innerHTML='<div class="wbox"><span></span><span>No se pudo obtener comparación válida.</span></div>'}
+  }catch(e){gid('compres').innerHTML='<div class="wbox"><span></span><span>Error de conexión.</span></div>'}
   finally{btn.disabled=false;btn.textContent='Comparar con IA'}
 }
 
@@ -1560,7 +1592,7 @@ async function searchEnf(){
     var d=normalizeEnfResponse(safeJSON(raw));
 
     if(d && d.encontrado===false){
-      gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>No es una enfermedad veterinaria válida.</span></div>';
+      gid('edet').innerHTML='<div class="wbox"><span></span><span>No es una enfermedad veterinaria válida.</span></div>';
     }
 
     // 🔥 CLAVE: YA NO EXIGE FÁRMACOS
@@ -1586,7 +1618,7 @@ async function searchEnf(){
       gid('edet').innerHTML=
       '<div class="aip">'+
         '<div class="aiph" style="background:linear-gradient(135deg,'+headerColor+',#001f5c)">'+
-          '<button class="aiclose" id="edetclose2">&#10005;</button>'+
+          '<button class="aiclose" id="edetclose2"></button>'+
           '<div class="ainame">'+esc(q)+'</div>'+
           '<div class="ailat">Protocolo de Tratamiento</div>'+
           '<div class="aitags"><span class="aitag ia">IA</span></div>'+
@@ -1620,7 +1652,7 @@ async function searchEnf(){
     }
 
   }catch(e2){
-    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error: '+esc(e2.message)+'</span></div>';
+    gid('edet').innerHTML='<div class="wbox"><span></span><span>Error: '+esc(e2.message)+'</span></div>';
   }
 
   btn.disabled=false;
@@ -1632,7 +1664,7 @@ async function searchEnf(){
 async function showEnf(id){
   var e=ENFS.find(function(x){return x.id===id;});
   if(!e){
-    gid('edet').innerHTML='<div class="wbox"><span>&#9888;</span><span>Enfermedad no encontrada</span></div>';
+    gid('edet').innerHTML='<div class="wbox"><span></span><span>Enfermedad no encontrada</span></div>';
     return;
   }
   // Fill search input and trigger search
@@ -1691,10 +1723,10 @@ async function startQuiz(){
       arr=arr.filter(function(q){return q.pregunta&&Array.isArray(q.opciones)&&q.opciones.length>=2&&typeof q.correcta==='number'});
     }
     if(Array.isArray(arr)&&arr.length>0){qqs=arr;qi=0;qs=0;renderQ()}
-    else{gid('qbody').innerHTML='<div class="wbox"><span>&#9888;</span><span>No se pudieron generar preguntas. Intenta de nuevo.</span></div>'}
+    else{gid('qbody').innerHTML='<div class="wbox"><span></span><span>No se pudieron generar preguntas. Intenta de nuevo.</span></div>'}
   }catch(e){
     console.error('Quiz error:',e);
-    gid('qbody').innerHTML='<div class="wbox"><span>&#9888;</span><span>Error de conexión. Intenta de nuevo.</span></div>';
+    gid('qbody').innerHTML='<div class="wbox"><span></span><span>Error de conexión. Intenta de nuevo.</span></div>';
   }
   finally{qbusy=false;if(btn){btn.disabled=false;btn.textContent='Comenzar Quiz'}}
 }
@@ -1926,7 +1958,7 @@ document.addEventListener('DOMContentLoaded',function(){
     var list=gid('rx-meds-list');
     if(!rxMeds.length){list.innerHTML='<p style="font-size:.83rem;color:var(--soft);font-style:italic;margin-bottom:12px">Agrega los medicamentos prescritos...</p>';return}
     list.innerHTML=rxMeds.map(function(m,i){
-      return '<div class="rx-item" style="margin-bottom:10px"><button class="rx-remove" data-ri="'+i+'">&#10005;</button>'+
+      return '<div class="rx-item" style="margin-bottom:10px"><button class="rx-remove" data-ri="'+i+'"></button>'+
         '<div class="receta-3col"><div class="fgrp"><label class="flbl">Medicamento</label><input class="fc rx-field" data-ri="'+i+'" data-field="nombre" value="'+esc(m.nombre)+'" placeholder="Nombre del fármaco"></div>'+
         '<div class="fgrp"><label class="flbl">Dosis y vía</label><input class="fc rx-field" data-ri="'+i+'" data-field="dosis" value="'+esc(m.dosis)+'" placeholder="Ej: 10mg/kg VO"></div>'+
         '<div class="fgrp"><label class="flbl">Frecuencia y duración</label><input class="fc rx-field" data-ri="'+i+'" data-field="freq" value="'+esc(m.freq)+'" placeholder="Ej: c/12h por 7 días"></div></div></div>';
@@ -2101,7 +2133,7 @@ document.addEventListener('DOMContentLoaded',function(){
             '<td style="padding:7px 10px">'+esc(v.prod)+'</td>'+
             '<td style="padding:7px 10px">'+esc(v.fecha)+'</td>'+
             '<td style="padding:7px 10px">'+esc(v.next)+'</td>'+
-            '<td style="padding:7px 10px"><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.85rem" data-vi="'+i+'">&#128465;</button></td>'+
+            '<td style="padding:7px 10px"><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.85rem" data-vi="'+i+'"></button></td>'+
           '</tr>';
         }).join('')+
         '</tbody></table></div>';
